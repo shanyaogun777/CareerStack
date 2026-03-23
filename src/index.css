@@ -1,0 +1,419 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/*
+ * PDF 栅格化（html-to-image）仍建议避免依赖 oklch/oklab 解析；Tailwind v4 默认 @theme 使用 oklch。
+ * 此处用 sRGB 十六进制覆盖简历与 UI 常用的灰、红、琥珀色板，
+ * 使 bg-gray-* / text-red-* 等工具类在计算样式中回退为浏览器可解析的值。
+ */
+@theme {
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #030712;
+
+  --color-red-50: #fef2f2;
+  --color-red-100: #fee2e2;
+  --color-red-200: #fecaca;
+  --color-red-300: #fca5a5;
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
+  --color-red-800: #991b1b;
+  --color-red-900: #7f1d1d;
+  --color-red-950: #450a0a;
+
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-800: #92400e;
+  --color-amber-900: #78350f;
+  --color-amber-950: #451a03;
+
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  --color-zinc-50: #fafafa;
+  --color-zinc-100: #f4f4f5;
+  --color-zinc-200: #e4e4e7;
+  --color-zinc-300: #d4d4d8;
+  --color-zinc-400: #a1a1aa;
+  --color-zinc-500: #71717a;
+  --color-zinc-600: #52525b;
+  --color-zinc-700: #3f3f46;
+  --color-zinc-800: #27272a;
+  --color-zinc-900: #18181b;
+  --color-zinc-950: #09090b;
+}
+
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --code-bg: #1f2028;
+    --accent: #c084fc;
+    --accent-bg: rgba(192, 132, 252, 0.15);
+    --accent-border: rgba(192, 132, 252, 0.5);
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow:
+      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  }
+
+  #social .button-icon {
+    filter: invert(1) brightness(2);
+  }
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+  width: 100%;
+  margin: 0;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+/* 避免全局 h1/h2 尺寸覆盖主内容区内 Tailwind 标题 */
+#main-content h1,
+#main-content h2 {
+  font-size: unset;
+  font-weight: unset;
+  letter-spacing: unset;
+  margin: unset;
+  line-height: unset;
+  font-family: inherit;
+  color: inherit;
+}
+
+/* Markdown 预览：嵌套列表、加粗与导出友好（与 prose 互补） */
+.experience-md {
+  --md-space: 0.5rem;
+}
+
+.experience-md .prose {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: #374151;
+}
+
+.experience-md .prose :where(ol) {
+  list-style-type: decimal;
+  list-style-position: outside;
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.experience-md .prose :where(ul) {
+  list-style-type: disc;
+  list-style-position: outside;
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.experience-md .prose :where(ol ol) {
+  list-style-type: lower-alpha;
+  margin: 0.35rem 0 0.35rem 0;
+}
+
+.experience-md .prose :where(ul ul) {
+  list-style-type: circle;
+  margin: 0.35rem 0 0.35rem 0;
+}
+
+.experience-md .prose :where(ol ul),
+.experience-md .prose :where(ul ol) {
+  margin: 0.35rem 0 0.35rem 0;
+}
+
+.experience-md .prose :where(li) {
+  margin: 0.2rem 0;
+}
+
+.experience-md .prose :where(li > p) {
+  margin: 0.15rem 0;
+}
+
+.experience-md .prose :where(strong) {
+  font-weight: 600;
+  color: #111827;
+}
+
+.experience-md .prose :where(pre) {
+  font-size: 0.8125rem;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+}
+
+.experience-md .prose :where(code):not(:where(pre *)) {
+  font-size: 0.8125em;
+  font-weight: 500;
+}
+
+/*
+ * 导出快照：在画布根节点上覆盖与 :root 同名的语义变量（子树继承），
+ * 将 rgba 改为实色十六进制、去掉阴影，导出时更稳妥。
+ */
+.resume-export-mode {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #ffffff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: #f5edff;
+  --accent-border: #d4a8ff;
+  --social-bg: #faf9f7;
+  --shadow: none;
+  color-scheme: light;
+  background-color: #ffffff !important;
+  color: #111827;
+}
+
+/* Markdown 预览：导出时用纯 hex，避免与 Tailwind 半透明类叠加出 oklab */
+.resume-export-mode .experience-md .prose,
+.resume-export-mode .experience-md .prose :where(p, li, td, th, blockquote) {
+  color: #374151 !important;
+}
+
+.resume-export-mode .experience-md .prose :where(strong, h1, h2, h3, h4) {
+  color: #111827 !important;
+}
+
+.resume-export-mode .experience-md .prose :where(code):not(:where(pre *)) {
+  color: #1f2937 !important;
+}
+
+.resume-export-mode .experience-md .prose pre {
+  color: #1f2937 !important;
+  background-color: #f3f4f6 !important;
+}
+
+/* 导出 PDF 时隐藏拖拽手柄、Markdown 源码编辑区等交互层 */
+.resume-export-mode .resume-ui-only {
+  display: none !important;
+}
+
+.resume-export-mode .resume-custom-empty-export,
+.resume-export-mode .resume-eval-empty-export {
+  display: none !important;
+}
+
+/* 导出时去掉投放区虚线底纹，避免 PDF 出现编辑态边框 */
+.resume-export-mode .resume-a4-dropzone {
+  border-style: solid;
+  border-color: transparent;
+  background-color: transparent;
+  min-height: 0;
+}
+
+/*
+ * Tailwind v4 对带透明度的 background / border / ring 工具类会生成
+ * 「8 位十六进制回退 + @supports 内的 color-mix(in oklab)」；现代浏览器走后者，栅格化工具可能不兼容。
+ * 导出快照时在 .resume-export-mode 下强制为 rgba。
+ */
+.resume-export-mode .border-gray-900\/90 {
+  border-color: rgba(17, 24, 39, 0.9) !important;
+}
+.resume-export-mode .border-gray-200\/90 {
+  border-color: rgba(229, 231, 235, 0.9) !important;
+}
+.resume-export-mode .ring-gray-200\/80 {
+  --tw-ring-color: rgba(229, 231, 235, 0.8) !important;
+}
+.resume-export-mode .bg-amber-50\/40 {
+  background-color: rgba(255, 251, 235, 0.4) !important;
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 56px;
+  letter-spacing: -1.68px;
+  margin: 32px 0;
+  @media (max-width: 1024px) {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+}
+h2 {
+  font-size: 24px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
+}
+p {
+  margin: 0;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}
+
+/* react-calendar — 面试日历（低饱和、空气感） */
+.careerstack-calendar .react-calendar {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid #f1f1f1;
+  border-radius: 14px;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Inter',
+    'Segoe UI',
+    sans-serif;
+  background: #fff;
+  padding: 0.25rem;
+}
+.careerstack-calendar .react-calendar__navigation {
+  border-bottom: 1px solid #f1f1f1;
+  margin-bottom: 0.25rem;
+}
+.careerstack-calendar .react-calendar__navigation button {
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  min-height: 2.25rem;
+  border-radius: 8px;
+}
+.careerstack-calendar .react-calendar__navigation button:enabled:hover {
+  background: #f9fafb;
+}
+.careerstack-calendar .react-calendar__month-view__weekdays {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  text-transform: uppercase;
+}
+.careerstack-calendar .react-calendar__month-view__weekdays__weekday {
+  padding: 0.35rem 0;
+}
+.careerstack-calendar .react-calendar__tile {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: #374151;
+  min-height: 3.25rem;
+  padding: 0.2rem 0.1rem 0.15rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+.careerstack-calendar .react-calendar__tile abbr {
+  text-decoration: none;
+  display: inline-block;
+}
+/* 今日：无大面积着色，仅下划线 */
+.careerstack-calendar .react-calendar__tile--now {
+  background: transparent !important;
+  color: #374151 !important;
+}
+.careerstack-calendar .react-calendar__tile--now abbr {
+  text-decoration: underline;
+  text-decoration-color: #d1d5db;
+  text-underline-offset: 4px;
+}
+/* 选中日期 */
+.careerstack-calendar .react-calendar__tile--active,
+.careerstack-calendar .react-calendar__tile--active:enabled:hover {
+  background: #e0e7ff !important;
+  color: #374151 !important;
+}
+.careerstack-calendar .react-calendar__tile--active abbr {
+  text-decoration: none;
+}
+.careerstack-calendar .react-calendar__tile:enabled:hover {
+  background: #f9fafb;
+}
+.careerstack-calendar .react-calendar__tile.has-activity:not(.react-calendar__tile--active) {
+  background: #fafafa;
+}
+.careerstack-calendar .react-calendar__tile.is-past-day:not(.react-calendar__tile--active) {
+  color: #9ca3af;
+}
+.careerstack-calendar .react-calendar__tile.has-activity.is-past-day:not(.react-calendar__tile--active) {
+  background: #fafafa;
+  opacity: 0.92;
+}

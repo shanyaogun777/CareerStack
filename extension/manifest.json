@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "CareerStack Collector",
+  "version": "0.1.0",
+  "description": "在 Boss 直聘职位页一键将 JD 发送到本地 CareerStack（需已打开 localhost 应用）",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["https://www.zhipin.com/*", "http://localhost/*", "http://127.0.0.1/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.zhipin.com/*"],
+      "js": ["content-boss.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["http://localhost/*", "http://127.0.0.1/*"],
+      "js": ["content-app-bridge.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
