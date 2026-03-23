@@ -1,13 +1,49 @@
+<div align="center">
+
+![CareerStack Logo](./public/pwa-192.png)
+
 # CareerStack
 
-本地优先（Local-first）的求职工作台：在浏览器中管理个人信息素材、多份简历、目标岗位 JD、面试题库与「指挥部」数据看板。数据默认保存在本机 **IndexedDB**，不经过 CareerStack 自有服务器。
+**本地优先的求职工作台** — 在浏览器里管理素材库、多版本简历、目标岗位 JD、面试题库与指挥部数据看板。
+
+### 👉 [在线体验 CareerStack](https://careerstack-nine.vercel.app/)
+
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Vercel](https://img.shields.io/badge/Vercel-Deploy-000000?style=flat-square&logo=vercel&logoColor=white)](https://vercel.com/)
+
+</div>
+
+---
+
+## 界面预览 (Screenshots)
+
+> 以下为占位图：将实际截图放入 `docs/` 目录后即可在仓库中展示。
+
+| 指挥部大屏看板 | AI 面试工作台 |
+| :---: | :---: |
+| ![控制台大屏看板](./docs/dashboard.png) | ![AI 面试工作台](./docs/interview.png) |
+
+| 简历丝滑导出 | JD 智能解析 |
+| :---: | :---: |
+| ![简历丝滑导出](./docs/resume.png) | ![JD 智能解析](./docs/jd-parse.png) |
+
+---
 
 ## 亮点
 
-- **隐私**：简历、岗位、经历等核心数据仅存于用户浏览器；AI 功能通过你配置的 OpenAI 兼容接口（如 DeepSeek）直连调用。
-- **离线可用（PWA）**：安装为应用后，静态资源由 Service Worker 缓存；断网仍可浏览已保存的简历与岗位（AI 与联网解析除外）。
-- **导出 PDF**：基于 `html-to-image` + jsPDF，将 A4 画布栅格为 PNG 再写入 PDF，部署在 HTTPS 与同源静态资源下即可稳定运行。
-- **数据迁移**：侧栏「设置」支持将 IndexedDB 全量导出 / 导入 JSON（含附件与头像的 Base64，以及指挥部「日历待办」`calendarTodos`；备份格式 v2，仍兼容 v1 导入），便于换机或换浏览器。
+- 🔒 **极致的数据隐私 (Local-first)**：简历、岗位、经历等核心数据默认只存在本机 **IndexedDB**，不经 CareerStack 自有服务器；告别「简历上传云端」的泄露焦虑，求职素材完全由你掌控。
+
+- 🤖 **AI 赋能全流程**：通过你配置的 **OpenAI 兼容接口**（如 **DeepSeek**）直连调用 —— JD **结构化解析**、经历 **STAR 润色**、面试题生成与面经抽取等能力一键触发，把大模型用在「投前整理 → 投中跟进 → 面后复盘」整条链路上。
+
+- 📴 **离线也能打开工作台（PWA）**：安装为应用后，静态资源由 **Service Worker** 预缓存；断网仍可浏览已保存的简历与岗位（AI 与需联网的解析功能除外）。
+
+- 📄 **简历导出像产品一样稳**：基于 `html-to-image` + **jsPDF**，将 A4 画布栅格为 PNG 再写入 PDF；部署在 **HTTPS** 与同源静态资源下即可稳定运行。
+
+- 🧳 **数据随人走**：侧栏「设置」支持 **IndexedDB 全量导出 / 导入 JSON**（含附件与头像的 Base64，以及指挥部「日历待办」`calendarTodos`；备份格式 **v2**，仍兼容 **v1** 导入），换浏览器或换机不丢档。
+
+---
 
 ## 技术栈
 
