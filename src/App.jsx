@@ -35,8 +35,11 @@ const InterviewWorkspacePage = lazy(() =>
     default: m.InterviewWorkspacePage,
   })),
 )
-const AuthPage = lazy(() =>
-  import('./pages/AuthPage').then((m) => ({ default: m.AuthPage })),
+const Login = lazy(() =>
+  import('./pages/Login').then((m) => ({ default: m.Login })),
+)
+const ResetPassword = lazy(() =>
+  import('./pages/ResetPassword').then((m) => ({ default: m.ResetPassword })),
 )
 
 function PageFallback() {
@@ -78,7 +81,15 @@ export default function App() {
         path="login"
         element={
           <Suspense fallback={<PageFallback />}>
-            <AuthPage />
+            <Login />
+          </Suspense>
+        }
+      />
+      <Route
+        path="reset-password"
+        element={
+          <Suspense fallback={<PageFallback />}>
+            <ResetPassword />
           </Suspense>
         }
       />

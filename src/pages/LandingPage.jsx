@@ -170,27 +170,27 @@ export function LandingPage() {
               </span>
             </h1>
             <div
-              className="animate-careerstack-fade-in-up mx-auto mt-8 max-w-2xl text-pretty md:mt-10"
+              className="animate-careerstack-fade-in-up mx-auto mt-8 max-w-2xl md:mt-10"
               style={{ animationDelay: '160ms' }}
             >
-              <p className="text-base leading-relaxed text-slate-800 md:text-lg">
+              <p className="whitespace-nowrap text-base leading-loose text-slate-800 md:text-lg">
                 在浏览器本地管理简历与岗位，AI 按你的密钥调用；从素材整理到面试备战，一条链路完成。
               </p>
               <p
                 lang="en"
-                className="mt-3 text-sm leading-relaxed text-slate-800 md:text-[15px]"
+                className="mt-3 whitespace-nowrap text-sm leading-loose text-slate-800 md:text-[15px]"
               >
                 Manage resumes and jobs locally in your browser; AI uses your own API keys—from
                 materials to interview prep, one seamless flow.
               </p>
             </div>
             <div
-              className="animate-careerstack-fade-in-up mt-10 flex justify-center md:mt-12"
+              className="animate-careerstack-fade-in-up mt-7 flex justify-center md:mt-8"
               style={{ animationDelay: '220ms' }}
             >
               <Link
                 to={APP_BASE}
-                className="inline-flex min-h-[48px] min-w-[200px] items-center justify-center rounded-full bg-indigo-500/90 px-8 py-3 text-sm font-medium tracking-wide text-white shadow-md shadow-indigo-500/15 transition hover:bg-indigo-500"
+                className="inline-flex min-h-[48px] min-w-[200px] items-center justify-center rounded-full bg-violet-400 px-8 py-3 text-sm font-medium tracking-wide text-white shadow-md shadow-violet-400/20 transition hover:bg-violet-500"
               >
                 立即开启工作台
               </Link>
@@ -198,14 +198,11 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="shrink-0 border-t border-slate-100/90 bg-white/50 px-5 py-16 backdrop-blur-sm md:py-20">
+        <section className="shrink-0 border-t border-slate-100/90 bg-white/50 px-5 py-12 backdrop-blur-sm md:py-14">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-2xl font-bold tracking-tighter text-slate-800 antialiased md:text-3xl">
+            <h2 className="text-center text-5xl font-bold tracking-tighter text-slate-800 antialiased md:text-6xl">
               全方位助力求职
             </h2>
-            <p className="mx-auto mt-3 max-w-lg text-center text-slate-800">
-              四项能力，覆盖从素材沉淀到投递与面试的闭环。
-            </p>
             <ul className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {FEATURES.map(({ title, body, icon }, i) => (
                 <li
@@ -236,14 +233,14 @@ export function LandingPage() {
           </p>
           <div className="mt-4 flex items-center justify-center gap-4">
             <SocialIconLink
-              href={`https://github.com/${GITHUB_USER}`}
+              href={`https://github.com/shanyaogun777`}
               label="GitHub"
               username={GITHUB_USER}
             >
               <Github className="size-5" strokeWidth={1.5} aria-hidden />
             </SocialIconLink>
             <SocialIconLink
-              href="https://www.xiaohongshu.com"
+              href=" https://xhslink.com/m/8duEbH6pXjH"
               label="小红书"
               username={XHS_NAME}
             >

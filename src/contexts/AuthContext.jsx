@@ -24,6 +24,10 @@ import { useToast } from './ToastContext.jsx'
  *   lastCloudSyncAt: number | null
  *   pendingRestore: null | { updatedAt: string; payload: unknown }
  *   signInWithMagicLink: (email: string) => Promise<void>
+ *   signInWithPassword: (email: string, password: string) => Promise<void>
+ *   signUp: (email: string, password: string) => Promise<{ session: import('@supabase/supabase-js').Session | null }>
+ *   sendPasswordReset: (email: string) => Promise<void>
+ *   updateNewPassword: (newPassword: string) => Promise<void>
  *   signOut: () => Promise<void>
  *   dismissPendingRestore: () => void
  *   confirmRestoreFromCloud: () => Promise<void>
@@ -41,6 +45,10 @@ const AuthContext = createContext(
     lastCloudSyncAt: null,
     pendingRestore: null,
     signInWithMagicLink: async () => {},
+    signInWithPassword: async () => {},
+    signUp: async () => ({ session: null }),
+    sendPasswordReset: async () => {},
+    updateNewPassword: async () => {},
     signOut: async () => {},
     dismissPendingRestore: () => {},
     confirmRestoreFromCloud: async () => {},
@@ -51,6 +59,19 @@ const AuthContext = createContext(
 
 function restoreResolvedKey(userId) {
   return `careerstack_restore_resolved_${userId}`
+}
+
+/**
+ * Magic Link / 密码登录成功后离开 /login（重置密码页由 ResetPassword 自行 navigate，避免打断 Toast）。
+ * @param {string} event
+ */
+function redirectToHomeAfterAuth(event) {
+  if (typeof window === 'undefined') return
+  const p = window.location.pathname
+  if (p !== '/login') return
+  if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+    window.location.replace('/')
+  }
 }
 
 /**
@@ -81,6 +102,14 @@ export function AuthProvider({ children }) {
       if (!uid || !isSupabaseConfigured) return
 
       if (eventName === 'TOKEN_REFRESHED') return
+
+      if (
+        eventName === 'INITIAL_SESSION' &&
+        typeof window !== 'undefined' &&
+        window.location.pathname === '/reset-password'
+      ) {
+        return
+      }
 
       const lockKey = `${uid}:${eventName}`
       if (flowLockRef.current === lockKey) return
@@ -138,10 +167,19 @@ export function AuthProvider({ children }) {
         return
       }
 
+      if (event === 'PASSWORD_RECOVERY') {
+        if (typeof window !== 'undefined' && window.location.pathname !== '/reset-password') {
+          const { search, hash } = window.location
+          window.location.replace(`${window.location.origin}/reset-password${search}${hash}`)
+        }
+        return
+      }
+
       if (!s?.user) return
 
       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
         await runPostLoginFlow(s, event)
+        redirectToHomeAfterAuth(event)
       }
     })
 
@@ -168,9 +206,97 @@ export function AuthProvider({ children }) {
     [showToast],
   )
 
+  const signInWithPassword = useCallback(
+    async (email, password) => {
+      if (!isSupabaseConfigured || !supabase) {
+        showToast('未配置 Supabase 环境变量', 'error')
+        return
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      })
+      if (error) {
+        showToast(error.message, 'error')
+        throw error
+      }
+      showToast('登录成功', 'success')
+    },
+    [showToast],
+  )
+
+  const signUp = useCallback(
+    async (email, password) => {
+      if (!isSupabaseConfigured || !supabase) {
+        showToast('未配置 Supabase 环境变量', 'error')
+        return { session: null }
+      }
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`,
+        },
+      })
+      if (error) {
+        showToast(error.message, 'error')
+        throw error
+      }
+      if (!data.session) {
+        showToast('注册成功，请前往邮箱确认后再登录', 'success')
+        return { session: null }
+      }
+      showToast('注册成功', 'success')
+      return { session: data.session }
+    },
+    [showToast],
+  )
+
+  const sendPasswordReset = useCallback(
+    async (email) => {
+      if (!isSupabaseConfigured || !supabase) {
+        showToast('未配置 Supabase 环境变量', 'error')
+        return
+      }
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+      if (error) {
+        showToast(error.message, 'error')
+        throw error
+      }
+      showToast('重置邮件已发送，请查收', 'success')
+    },
+    [showToast],
+  )
+
+  const updateNewPassword = useCallback(
+    async (newPassword) => {
+      if (!isSupabaseConfigured || !supabase) {
+        showToast('未配置 Supabase 环境变量', 'error')
+        throw new Error('未配置 Supabase')
+      }
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) {
+        showToast(error.message, 'error')
+        throw error
+      }
+    },
+    [showToast],
+  )
+
   const signOut = useCallback(async () => {
-    if (!supabase) return
-    await supabase.auth.signOut()
+    if (!supabase) {
+      showToast('未配置 Supabase，无法退出云端会话', 'error')
+      return
+    }
+
+    // 先同步清空本地会话状态，避免网络等待或监听器延迟导致「点击无反应」
+    setSession(null)
+    setLoading(false)
+    setPendingRestore(null)
+    setLastCloudSyncAt(null)
+    flowLockRef.current = null
     if (typeof sessionStorage !== 'undefined') {
       const keys = Object.keys(sessionStorage)
       for (const k of keys) {
@@ -178,6 +304,21 @@ export function AuthProvider({ children }) {
       }
     }
     showToast('已退出登录', 'default')
+
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        const { error: localErr } = await supabase.auth.signOut({ scope: 'local' })
+        if (localErr) showToast(localErr.message, 'error')
+      }
+    } catch (e) {
+      try {
+        const { error: localErr } = await supabase.auth.signOut({ scope: 'local' })
+        if (localErr) showToast(localErr.message, 'error')
+      } catch {
+        showToast(e instanceof Error ? e.message : '退出失败', 'error')
+      }
+    }
   }, [showToast])
 
   const dismissPendingRestore = useCallback(() => {
@@ -254,6 +395,10 @@ export function AuthProvider({ children }) {
       lastCloudSyncAt,
       pendingRestore,
       signInWithMagicLink,
+      signInWithPassword,
+      signUp,
+      sendPasswordReset,
+      updateNewPassword,
       signOut,
       dismissPendingRestore,
       confirmRestoreFromCloud,
@@ -267,6 +412,10 @@ export function AuthProvider({ children }) {
       lastCloudSyncAt,
       pendingRestore,
       signInWithMagicLink,
+      signInWithPassword,
+      signUp,
+      sendPasswordReset,
+      updateNewPassword,
       signOut,
       dismissPendingRestore,
       confirmRestoreFromCloud,
