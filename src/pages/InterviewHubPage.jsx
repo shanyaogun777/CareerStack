@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { appInterviewJob } from '../lib/appPaths'
 import { Building2, ChevronRight, ClipboardList } from 'lucide-react'
 import { jobRepository } from '../services/db'
 
@@ -31,14 +32,14 @@ export function InterviewHubPage() {
     <div className="mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col px-4 md:px-8">
       <header className="mb-6">
         <div className="flex items-start gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
-            <ClipboardList className="size-5" strokeWidth={1.75} aria-hidden />
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100/90 text-indigo-400/80">
+            <ClipboardList className="size-5" strokeWidth={1.5} aria-hidden />
           </div>
           <div>
-            <h1 className="text-lg font-semibold tracking-tight text-gray-900">
+            <h1 className="text-lg font-semibold tracking-tight text-slate-800">
               专项面试工作台
             </h1>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
               选择目标岗位进入备战空间：管理 AI 模拟题、面经提取与手写记录，集中撰写 Markdown
               答题草稿。
             </p>
@@ -53,10 +54,10 @@ export function InterviewHubPage() {
       ) : null}
 
       {jobs.length === 0 && !error ? (
-        <div className="rounded-xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center">
-          <Building2 className="mx-auto size-10 text-gray-300" strokeWidth={1.25} aria-hidden />
-          <p className="mt-3 text-sm text-gray-600">暂无岗位</p>
-          <p className="mt-1 text-xs text-gray-400">
+        <div className="rounded-2xl border border-dashed border-slate-200/90 bg-white px-8 py-16 text-center">
+          <Building2 className="mx-auto size-10 text-slate-300" strokeWidth={1.5} aria-hidden />
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">暂无岗位</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">
             请先在「岗位库」添加岗位并解析 JD，再回到此处备战面试。
           </p>
         </div>
@@ -67,28 +68,28 @@ export function InterviewHubPage() {
             return (
               <li key={j.id}>
                 <Link
-                  to={`/interview/${j.id}`}
-                  className="group flex min-h-[88px] items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm transition-colors hover:border-violet-200 hover:bg-violet-50/50"
+                  to={appInterviewJob(j.id)}
+                  className="group flex min-h-[88px] items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white px-5 py-3.5 shadow-sm transition-all duration-200 hover:border-slate-200 hover:bg-slate-50/60"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <Building2
-                        className="size-4 shrink-0 text-gray-400 group-hover:text-violet-600"
-                        strokeWidth={1.75}
+                        className="size-[18px] shrink-0 text-slate-400 transition-colors duration-200 group-hover:text-indigo-400/80"
+                        strokeWidth={1.5}
                         aria-hidden
                       />
-                      <span className="truncate font-medium text-gray-900">
+                      <span className="truncate font-medium text-slate-800">
                         {j.position || '未命名职位'}
                       </span>
                     </div>
-                    <p className="mt-0.5 truncate text-xs text-gray-500">{j.company || '—'}</p>
-                    <p className="mt-1 text-[11px] text-gray-400">
+                    <p className="mt-0.5 truncate text-xs leading-relaxed text-slate-500">{j.company || '—'}</p>
+                    <p className="mt-1 text-[11px] text-slate-400">
                       题库 {n} 题
                     </p>
                   </div>
                   <ChevronRight
-                    className="size-5 shrink-0 text-gray-300 group-hover:text-violet-500"
-                    strokeWidth={2}
+                    className="size-5 shrink-0 text-slate-300 transition-colors duration-200 group-hover:text-indigo-400/75"
+                    strokeWidth={1.5}
                     aria-hidden
                   />
                 </Link>

@@ -79,25 +79,25 @@ export function ExperienceLibrary() {
     <div className="w-full max-w-none">
       <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-lg font-semibold tracking-tight text-gray-900">
+          <h1 className="text-lg font-semibold tracking-tight text-slate-800">
             个人信息库
           </h1>
-          <p className="mt-1 max-w-xl text-sm text-gray-500">
+          <p className="mt-1 max-w-xl text-sm leading-relaxed text-slate-600">
             按分类管理教育、工作、项目与校园素材；写入简历时仅为副本，原件始终在此维护。
           </p>
         </div>
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-gray-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
         >
-          <Plus className="size-4" strokeWidth={2} aria-hidden />
+          <Plus className="size-[18px] text-white/90" strokeWidth={1.5} aria-hidden />
           新增条目
         </button>
       </header>
 
       <div
-        className="mb-6 flex flex-wrap gap-1 border-b border-gray-200"
+        className="mb-6 flex flex-wrap gap-1 border-b border-slate-100"
         role="tablist"
         aria-label="素材分类"
       >
@@ -116,12 +116,12 @@ export function ExperienceLibrary() {
               className={cn(
                 'relative px-3 py-2.5 text-sm font-medium transition-colors',
                 active
-                  ? 'text-gray-900 after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-gray-900'
-                  : 'text-gray-500 hover:text-gray-800',
+                  ? 'text-slate-800 after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-slate-700/80'
+                  : 'text-slate-500 hover:text-slate-700',
               )}
             >
               {EXPERIENCE_CATEGORY_LABELS[cat]}
-              <span className="ml-1.5 text-xs font-normal text-gray-400">
+              <span className="ml-1.5 text-xs font-normal text-slate-400">
                 {count}
               </span>
             </button>
@@ -136,11 +136,11 @@ export function ExperienceLibrary() {
       ) : null}
 
       {filtered.length === 0 && !listError ? (
-        <div className="rounded-xl border border-dashed border-gray-200 bg-white/60 px-6 py-16 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="rounded-2xl border border-dashed border-slate-200/80 bg-white/70 px-8 py-16 text-center">
+          <p className="text-sm leading-relaxed text-slate-500">
             当前分类下暂无条目
           </p>
-          <p className="mt-2 text-xs text-gray-400">
+          <p className="mt-2 text-xs leading-relaxed text-slate-400">
             点击「新增条目」并选择对应分类，或切换到其他分类查看。
           </p>
         </div>

@@ -10,9 +10,9 @@ import { buildAttachmentsFromFiles } from '../../utils/fileAttachments'
 import { MarkdownPreview } from './MarkdownPreview'
 
 const fieldClass =
-  'w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200'
+  'w-full rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100'
 
-const labelClass = 'mb-1 block text-xs font-medium text-gray-700'
+const labelClass = 'mb-1 block text-xs font-medium text-slate-600'
 
 function formatBytes(n) {
   if (n < 1024) return `${n} B`
@@ -221,41 +221,41 @@ export function ExperienceFormDrawer({
       <button
         type="button"
         aria-label="关闭抽屉"
-        className="absolute inset-0 bg-gray-900/35 transition-opacity"
+        className="absolute inset-0 bg-slate-900/25 transition-opacity"
         onClick={onClose}
       />
       <section
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative flex h-full w-full max-w-2xl flex-col border-l border-gray-200 bg-white shadow-2xl"
+        className="relative flex h-full w-full max-w-2xl flex-col border-l border-slate-100 bg-white shadow-2xl"
       >
-        <header className="flex items-start justify-between gap-3 border-b border-gray-100 px-5 py-4">
+        <header className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
           <div>
             <h2
               id={titleId}
-              className="text-base font-semibold tracking-tight text-gray-900"
+              className="text-base font-semibold tracking-tight text-slate-800"
             >
               {isEdit ? '编辑条目' : '新增条目'}
             </h2>
-            <p className="mt-0.5 text-xs text-gray-500">
+            <p className="mt-0.5 text-xs leading-relaxed text-slate-600">
               请先选择所属分类；描述支持 Markdown，下方为实时预览。
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800"
+            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-50 hover:text-slate-600"
             aria-label="关闭"
           >
-            <X className="size-5" strokeWidth={1.75} />
+            <X className="size-[18px]" strokeWidth={1.5} />
           </button>
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {loading ? (
-            <div className="flex items-center gap-2 py-12 text-sm text-gray-500">
-              <Loader2 className="size-5 animate-spin" aria-hidden />
+            <div className="flex items-center gap-2 py-12 text-sm text-slate-500">
+              <Loader2 className="size-5 animate-spin text-indigo-400/70" strokeWidth={1.5} aria-hidden />
               加载中…
             </div>
           ) : loadError ? (
@@ -283,7 +283,7 @@ export function ExperienceFormDrawer({
                       </option>
                     ))}
                   </select>
-                  <p className="mt-1 text-[11px] text-gray-400">
+                  <p className="mt-1 text-[11px] text-slate-400">
                     决定该素材在简历中心可拖入的板块；与「经历类型」标签不同。
                   </p>
                 </div>
@@ -354,7 +354,7 @@ export function ExperienceFormDrawer({
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                   />
-                  <p className="mt-1 text-[11px] text-gray-400">
+                  <p className="mt-1 text-[11px] text-slate-400">
                     仍在进行中可留空，保存后列表显示为「至今」。
                   </p>
                 </div>
@@ -386,8 +386,8 @@ export function ExperienceFormDrawer({
                 />
               </div>
 
-              <div className="rounded-lg border border-gray-200 bg-gray-50/80 p-4">
-                <div className="mb-2 text-xs font-medium text-gray-700">
+              <div className="rounded-xl border border-slate-200/90 bg-slate-50/70 p-4">
+                <div className="mb-2 text-xs font-medium text-slate-600">
                   描述预览
                 </div>
                 <MarkdownPreview
@@ -399,14 +399,15 @@ export function ExperienceFormDrawer({
               <div>
                 <span className={labelClass}>附件（PDF / 图片）</span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50/90 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
                     {attachBusy ? (
                       <Loader2
-                        className="size-4 animate-spin text-gray-500"
+                        className="size-[18px] animate-spin text-slate-400"
+                        strokeWidth={1.5}
                         aria-hidden
                       />
                     ) : (
-                      <Upload className="size-4 text-gray-500" aria-hidden />
+                      <Upload className="size-[18px] text-slate-400" strokeWidth={1.5} aria-hidden />
                     )}
                     <span>{attachBusy ? '处理中…' : '选择文件'}</span>
                     <input
@@ -418,7 +419,7 @@ export function ExperienceFormDrawer({
                       onChange={handleFiles}
                     />
                   </label>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-slate-400">
                     顺序读取、分批让出主线程；单文件 ≤ 32MB
                   </span>
                 </div>
@@ -430,28 +431,28 @@ export function ExperienceFormDrawer({
                     {attachments.map((a) => (
                       <li
                         key={a.id}
-                        className="flex items-center justify-between gap-2 rounded-md border border-gray-100 bg-white px-3 py-2 text-sm"
+                        className="flex items-center justify-between gap-2 rounded-lg border border-slate-100 bg-white px-3 py-2 text-sm"
                       >
                         <span className="flex min-w-0 items-center gap-2">
                           <Paperclip
-                            className="size-4 shrink-0 text-gray-400"
-                            strokeWidth={1.75}
+                            className="size-[18px] shrink-0 text-slate-400"
+                            strokeWidth={1.5}
                             aria-hidden
                           />
-                          <span className="truncate text-gray-800">
+                          <span className="truncate text-slate-800">
                             {a.name}
                           </span>
-                          <span className="shrink-0 text-xs text-gray-400">
+                          <span className="shrink-0 text-xs text-slate-400">
                             {formatBytes(a.size ?? a.blob?.size ?? 0)}
                           </span>
                         </span>
                         <button
                           type="button"
                           onClick={() => removeAttachment(a.id)}
-                          className="shrink-0 rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                          className="shrink-0 rounded p-1.5 text-slate-400 transition-colors hover:bg-red-50/80 hover:text-red-500/90"
                           aria-label={`移除 ${a.name}`}
                         >
-                          <Trash2 className="size-4" strokeWidth={1.75} />
+                          <Trash2 className="size-[18px]" strokeWidth={1.5} />
                         </button>
                       </li>
                     ))}
@@ -462,7 +463,7 @@ export function ExperienceFormDrawer({
           )}
         </div>
 
-        <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 bg-white px-5 py-3">
+        <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 bg-white px-5 py-4">
           {isEdit ? (
             <button
               type="button"
@@ -477,7 +478,7 @@ export function ExperienceFormDrawer({
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+            className="rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50/90 disabled:opacity-40"
           >
             取消
           </button>
@@ -485,10 +486,10 @@ export function ExperienceFormDrawer({
             type="button"
             onClick={handleSave}
             disabled={saving || loading || !!loadError}
-            className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:opacity-40"
           >
             {saving ? (
-              <Loader2 className="size-4 animate-spin" aria-hidden />
+              <Loader2 className="size-[18px] animate-spin text-white/90" strokeWidth={1.5} aria-hidden />
             ) : null}
             保存
           </button>

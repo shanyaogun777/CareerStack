@@ -600,8 +600,8 @@ export function ResumeEditor() {
 
   if (resumeId == null) {
     return (
-      <div className="flex items-center justify-center gap-2 py-24 text-sm text-gray-500">
-        <Loader2 className="size-5 animate-spin" aria-hidden />
+      <div className="flex items-center justify-center gap-2 py-24 text-sm text-slate-500">
+        <Loader2 className="size-5 animate-spin text-indigo-400/70" strokeWidth={1.5} aria-hidden />
         正在加载简历…
       </div>
     )
@@ -609,7 +609,7 @@ export function ResumeEditor() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <header className="shrink-0 space-y-3 border-b border-gray-200 bg-white px-4 py-3">
+      <header className="shrink-0 space-y-3 border-b border-slate-100 bg-white px-5 py-4">
         <div className="flex flex-wrap items-center gap-2">
           <label className="sr-only" htmlFor="resume-picker">
             选择简历
@@ -618,7 +618,7 @@ export function ResumeEditor() {
             id="resume-picker"
             value={resumeId ?? ''}
             onChange={(e) => void handlePickResume(Number(e.target.value))}
-            className="min-w-[10rem] rounded-md border border-gray-200 bg-white px-2.5 py-2 text-[12px] font-medium text-gray-800 shadow-sm focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            className="min-w-[10rem] rounded-lg border border-slate-200/90 bg-white px-2.5 py-2 text-[12px] font-medium text-slate-800 shadow-sm focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
           >
             {[...resumes]
               .sort((a, b) => a.id - b.id)
@@ -631,32 +631,32 @@ export function ResumeEditor() {
           <button
             type="button"
             onClick={() => void handleNewResume()}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-2 text-[11px] font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/90 bg-white px-2.5 py-2 text-[11px] font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90"
           >
-            <FilePlus className="size-3.5" strokeWidth={1.75} aria-hidden />
+            <FilePlus className="size-[14px] text-slate-400" strokeWidth={1.5} aria-hidden />
             新建简历
           </button>
           <button
             type="button"
             onClick={() => void handleDuplicateResume()}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-2 text-[11px] font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/90 bg-white px-2.5 py-2 text-[11px] font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90"
           >
-            <Copy className="size-3.5" strokeWidth={1.75} aria-hidden />
+            <Copy className="size-[14px] text-slate-400" strokeWidth={1.5} aria-hidden />
             复制简历
           </button>
           <button
             type="button"
             onClick={() => void handleDeleteResume()}
-            className="inline-flex items-center gap-1.5 rounded-md border border-red-100 bg-white px-2.5 py-2 text-[11px] font-medium text-red-600 shadow-sm hover:bg-red-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-red-100/90 bg-white px-2.5 py-2 text-[11px] font-medium text-red-500/90 shadow-sm transition-colors hover:bg-red-50/80"
           >
-            <Trash2 className="size-3.5" strokeWidth={1.75} aria-hidden />
+            <Trash2 className="size-[14px] text-slate-400" strokeWidth={1.5} aria-hidden />
             删除简历
           </button>
         </div>
-        <div className="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-2">
+        <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
           <label
             htmlFor="resume-polish-job"
-            className="text-[11px] font-medium text-gray-600"
+            className="text-[11px] font-medium text-slate-600"
           >
             关联岗位（AI 润色）
           </label>
@@ -664,7 +664,7 @@ export function ResumeEditor() {
             id="resume-polish-job"
             value={polishJobId ?? ''}
             onChange={(e) => handlePolishJobChange(e.target.value)}
-            className="max-w-[min(100%,20rem)] rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-[11px] font-medium text-gray-800 shadow-sm focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            className="max-w-[min(100%,20rem)] rounded-lg border border-slate-200/90 bg-white px-2.5 py-1.5 text-[11px] font-medium text-slate-800 shadow-sm focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
           >
             <option value="">不关联</option>
             {[...jobs]
@@ -690,10 +690,10 @@ export function ResumeEditor() {
               id="resume-title-input"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full max-w-md rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-[13px] font-semibold text-gray-900 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+              className="w-full max-w-md rounded-lg border border-slate-200/90 bg-slate-50/70 px-3 py-2 text-[13px] font-semibold text-slate-800 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100"
               placeholder="简历名称"
             />
-            <p className="mt-1 text-[11px] text-gray-500">
+            <p className="mt-1 text-[11px] text-slate-500">
               A4 画布宽约 794px；切换或新建前会自动保存当前简历。
             </p>
           </div>
@@ -703,13 +703,13 @@ export function ResumeEditor() {
             disabled={exporting}
             aria-busy={exporting}
             className={cn(
-              'inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2.5 text-[13px] font-semibold text-white shadow-md hover:bg-gray-800 disabled:pointer-events-none disabled:opacity-55',
+              'inline-flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2.5 text-[13px] font-semibold text-white shadow-md transition-colors hover:bg-slate-700 disabled:pointer-events-none disabled:opacity-55',
             )}
           >
             {exporting ? (
-              <Loader2 className="size-4 animate-spin" aria-hidden />
+              <Loader2 className="size-[18px] animate-spin text-white/90" strokeWidth={1.5} aria-hidden />
             ) : (
-              <Download className="size-4" strokeWidth={2} aria-hidden />
+              <Download className="size-[18px] text-white/90" strokeWidth={1.5} aria-hidden />
             )}
             {exporting ? '正在导出…' : '导出 PDF'}
           </button>
@@ -744,18 +744,18 @@ export function ResumeEditor() {
           />
           <DragOverlay dropAnimation={null}>
             {overlay?.type === 'palette' ? (
-              <div className="w-64 rounded-lg border border-gray-300 bg-white p-2 shadow-xl">
-                <div className="text-[12px] font-semibold text-gray-900">
+              <div className="w-64 rounded-lg border border-slate-200/90 bg-white p-2 shadow-xl">
+                <div className="text-[12px] font-semibold text-slate-800">
                   {overlay.exp.company}
                 </div>
-                <div className="text-[11px] text-gray-600">{overlay.exp.role}</div>
+                <div className="text-[11px] text-slate-600">{overlay.exp.role}</div>
               </div>
             ) : overlay?.type === 'block' ? (
-              <div className="w-72 rounded-md border border-gray-300 bg-white p-3 shadow-xl">
-                <div className="text-[12px] font-semibold text-gray-900">
+              <div className="w-72 rounded-lg border border-slate-200/90 bg-white p-3 shadow-xl">
+                <div className="text-[12px] font-semibold text-slate-800">
                   {overlay.block.company}
                 </div>
-                <div className="text-[11px] text-gray-600">{overlay.block.role}</div>
+                <div className="text-[11px] text-slate-600">{overlay.block.role}</div>
               </div>
             ) : null}
           </DragOverlay>

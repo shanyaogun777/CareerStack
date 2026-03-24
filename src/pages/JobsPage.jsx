@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { appPath } from '../lib/appPaths'
 import { Building2, Link2, Plus } from 'lucide-react'
 import { experienceRepository, jobRepository } from '../services/db'
 import { JobKanban } from '../components/jobs/JobKanban'
@@ -110,8 +111,8 @@ export function JobsPage() {
     <div className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col">
       <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold tracking-tight text-gray-900">岗位库</h1>
-          <p className="mt-1 max-w-xl text-sm text-gray-500">
+          <h1 className="text-lg font-semibold tracking-tight text-slate-800">岗位库</h1>
+          <p className="mt-1 max-w-xl text-sm leading-relaxed text-slate-600">
             管理目标岗位与 JD；使用 AI 解析后，系统会根据「关键技能点」从个人信息库推荐相关经历。
           </p>
         </div>
@@ -119,17 +120,17 @@ export function JobsPage() {
           <button
             type="button"
             onClick={() => setParseUrlOpen(true)}
-            className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-200/90 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors duration-200 hover:bg-slate-50/90"
           >
-            <Link2 className="size-4" strokeWidth={2} aria-hidden />
+            <Link2 className="size-[18px] text-slate-400" strokeWidth={1.5} aria-hidden />
             解析 URL
           </button>
           <button
             type="button"
             onClick={openCreate}
-            className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-gray-800"
+            className="inline-flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-slate-700"
           >
-            <Plus className="size-4" strokeWidth={2} aria-hidden />
+            <Plus className="size-[18px] text-white/90" strokeWidth={1.5} aria-hidden />
             添加岗位
           </button>
         </div>
@@ -146,7 +147,7 @@ export function JobsPage() {
           {jobs.length === 0 && !listError ? (
             <EmptyState
               className="min-h-[240px] flex-1"
-              icon={<Building2 className="size-7" strokeWidth={1.5} aria-hidden />}
+              icon={<Building2 className="size-7 text-current" strokeWidth={1.5} aria-hidden />}
               title="还没有岗位"
               description="从「添加岗位」粘贴 JD，或使用「解析 URL」拉取招聘页。解析后可匹配个人信息库、生成面试题。"
             >
@@ -154,17 +155,17 @@ export function JobsPage() {
                 <button
                   type="button"
                   onClick={openCreate}
-                  className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-gray-800"
+                  className="inline-flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-slate-700"
                 >
-                  <Plus className="size-4" strokeWidth={2} aria-hidden />
+                  <Plus className="size-[18px] text-white/90" strokeWidth={1.5} aria-hidden />
                   添加岗位
                 </button>
                 <button
                   type="button"
                   onClick={() => setParseUrlOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50"
+                  className="inline-flex items-center gap-2 rounded-lg border border-slate-200/90 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors duration-200 hover:bg-slate-50/90"
                 >
-                  <Link2 className="size-4" strokeWidth={2} aria-hidden />
+                  <Link2 className="size-[18px] text-slate-400" strokeWidth={1.5} aria-hidden />
                   解析 URL
                 </button>
               </div>
@@ -175,20 +176,20 @@ export function JobsPage() {
         </div>
 
         {selectedJob ? (
-          <div className="flex h-[min(68vh,560px)] w-full shrink-0 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white lg:h-auto lg:min-h-0 lg:w-[380px] lg:max-w-[40%]">
+          <div className="flex h-[min(68vh,560px)] w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white lg:h-auto lg:min-h-0 lg:w-[380px] lg:max-w-[40%]">
             <JobDetailPanel
               job={selectedJob}
               experiences={experiences}
               onEdit={openEdit}
               onDelete={() => void handleDelete()}
               onStatusChange={(st) => void handleStatusChange(st)}
-              onNavigateToExperiences={() => navigate('/experiences')}
+              onNavigateToExperiences={() => navigate(appPath('experiences'))}
               onJobUpdated={() => void refresh()}
             />
           </div>
         ) : (
-          <div className="hidden rounded-xl border border-dashed border-gray-200 bg-white/60 px-6 py-12 text-center lg:flex lg:w-[260px] lg:shrink-0 lg:items-center lg:justify-center">
-            <p className="text-sm text-gray-500">点击看板卡片查看详情与素材推荐</p>
+          <div className="hidden rounded-2xl border border-dashed border-slate-200/80 bg-white/70 px-7 py-14 text-center lg:flex lg:w-[260px] lg:shrink-0 lg:items-center lg:justify-center">
+            <p className="text-sm leading-relaxed text-slate-500">点击看板卡片查看详情与素材推荐</p>
           </div>
         )}
       </div>

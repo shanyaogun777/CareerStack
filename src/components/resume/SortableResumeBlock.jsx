@@ -51,19 +51,19 @@ export function SortableResumeBlock({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'rounded-md border border-gray-200 bg-white px-3 py-2.5 shadow-sm',
-        isDragging && 'z-10 opacity-80 shadow-lg ring-1 ring-gray-200',
+        'rounded-lg border border-slate-200/90 bg-white px-3.5 py-3 shadow-sm',
+        isDragging && 'z-10 opacity-80 shadow-lg ring-1 ring-slate-100',
       )}
     >
-      <div className="resume-ui-only mb-2 flex items-center justify-between gap-2 border-b border-gray-100 pb-2">
+      <div className="resume-ui-only mb-2 flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
         <button
           type="button"
-          className="flex size-7 items-center justify-center rounded border border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100"
+          className="flex size-7 items-center justify-center rounded-lg border border-slate-200/90 bg-slate-50/80 text-slate-400 transition-colors hover:bg-slate-50"
           aria-label="拖拽排序"
           {...listeners}
           {...attributes}
         >
-          <GripVertical className="size-4" strokeWidth={1.75} />
+          <GripVertical className="size-[18px]" strokeWidth={1.5} />
         </button>
         <div className="flex items-center gap-1">
           {onRequestPolish ? (
@@ -72,19 +72,19 @@ export function SortableResumeBlock({
               onClick={onRequestPolish}
               disabled={polishDisabled}
               title={polishTitle ?? 'AI 润色'}
-              className="flex size-7 items-center justify-center rounded border border-violet-100 bg-violet-50/80 text-violet-700 hover:bg-violet-100 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-300"
+              className="flex size-7 items-center justify-center rounded-lg border border-indigo-100/90 bg-indigo-50/50 text-indigo-400/85 transition-colors hover:bg-indigo-50/80 disabled:cursor-not-allowed disabled:border-slate-100 disabled:bg-slate-50 disabled:text-slate-300"
               aria-label="AI 润色"
             >
-              <Sparkles className="size-3.5" strokeWidth={1.75} />
+              <Sparkles className="size-[14px]" strokeWidth={1.5} />
             </button>
           ) : null}
           <button
             type="button"
             onClick={onRemove}
-            className="flex size-7 items-center justify-center rounded border border-transparent text-gray-400 hover:border-red-100 hover:bg-red-50 hover:text-red-600"
+            className="flex size-7 items-center justify-center rounded-lg border border-transparent text-slate-400 transition-colors hover:border-red-100/90 hover:bg-red-50/80 hover:text-red-500/90"
             aria-label="移除此条"
           >
-            <Trash2 className="size-4" strokeWidth={1.75} />
+            <Trash2 className="size-[18px]" strokeWidth={1.5} />
           </button>
         </div>
       </div>
@@ -94,16 +94,16 @@ export function SortableResumeBlock({
           as="div"
           value={block.company}
           onCommit={(v) => onPatch({ company: v })}
-          className="min-w-[4rem] max-w-full text-[13px] font-semibold leading-snug text-gray-900"
+          className="min-w-[4rem] max-w-full text-[13px] font-semibold leading-snug text-slate-800"
         />
-        <span className="text-[12px] text-gray-300" aria-hidden>
+        <span className="text-[12px] text-slate-300" aria-hidden>
           ·
         </span>
         <EditablePlain
           as="div"
           value={block.role}
           onCommit={(v) => onPatch({ role: v })}
-          className="min-w-[3rem] max-w-full text-[12px] font-medium text-gray-700"
+          className="min-w-[3rem] max-w-full text-[12px] font-medium text-slate-600"
         />
       </div>
       <div className="mt-1">
@@ -117,29 +117,29 @@ export function SortableResumeBlock({
               endDate: parts[1] && parts[1] !== '至今' ? parts[1] : '',
             })
           }}
-          className="text-[10.5px] leading-snug text-gray-500"
+          className="text-[10.5px] leading-snug text-slate-500"
         />
       </div>
       {block.type ? (
-        <div className="mt-1 text-[10px] font-medium uppercase tracking-wide text-gray-400">
+        <div className="mt-1 text-[10px] font-medium uppercase tracking-wide text-slate-400">
           {block.type}
         </div>
       ) : null}
 
       <div className="resume-ui-only mt-2">
-        <label className="mb-0.5 block text-[10px] font-medium text-gray-500">
+        <label className="mb-0.5 block text-[10px] font-medium text-slate-500">
           Markdown 源码
         </label>
         <textarea
           value={block.description}
           onChange={(e) => onPatch({ description: e.target.value })}
           spellCheck={false}
-          className="min-h-[80px] w-full resize-y rounded border border-dashed border-gray-200 bg-gray-50/80 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-gray-800 focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-200"
+          className="min-h-[80px] w-full resize-y rounded-lg border border-dashed border-slate-200/90 bg-slate-50/70 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-slate-800 focus:border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-100"
         />
       </div>
 
-      <div className="resume-md-surface mt-2 border-t border-gray-100 pt-2">
-        <div className="mb-1 text-[10px] font-medium text-gray-400">预览</div>
+      <div className="resume-md-surface mt-2 border-t border-slate-100 pt-2">
+        <div className="mb-1 text-[10px] font-medium text-slate-400">预览</div>
         <MarkdownPreview
           markdown={block.description}
           compact

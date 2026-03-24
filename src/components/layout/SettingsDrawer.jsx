@@ -1,18 +1,26 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Download, Upload, X } from 'lucide-react'
+import { Cloud, Download, Loader2, Upload, X } from 'lucide-react'
 import { loadAiSettings, saveAiSettings } from '../../services/ai'
 import { downloadBackupFile, importAllDataFromJson } from '../../services/dataBackup'
+import { useAuth } from '../../contexts/AuthContext.jsx'
+import { Link } from 'react-router-dom'
 
 const fieldClass =
-  'w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200'
+  'w-full rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100'
 
-const labelClass = 'mb-1 block text-xs font-medium text-gray-700'
+const labelClass = 'mb-1 block text-xs font-medium text-slate-600'
 
 /**
  * 抽屉打开时挂载，从 localStorage 读取一次初始值（避免在 effect 里 setState）。
  * @param {{ onClose: () => void; titleId: string }} props
  */
 function SettingsDrawerInner({ onClose, titleId }) {
+  const {
+    user,
+    isSupabaseConfigured,
+    syncToCloud,
+  } = useAuth()
+  const [cloudBusy, setCloudBusy] = useState(false)
   const initial = loadAiSettings()
   const [apiKey, setApiKey] = useState(initial.apiKey)
   const [baseUrl, setBaseUrl] = useState(initial.baseUrl)
@@ -80,30 +88,30 @@ function SettingsDrawerInner({ onClose, titleId }) {
   }
 
   return (
-    <div className="relative flex h-full w-full max-w-md flex-col border-l border-gray-200 bg-white shadow-xl">
-      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-        <h2 id={titleId} className="text-sm font-semibold text-gray-900">
+    <div className="relative flex h-full w-full max-w-md flex-col border-l border-slate-100 bg-white shadow-xl">
+      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+        <h2 id={titleId} className="text-sm font-semibold tracking-tight text-slate-800">
           设置
         </h2>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
           aria-label="关闭"
         >
-          <X className="size-4" strokeWidth={2} />
+          <X className="size-[18px]" strokeWidth={1.5} />
         </button>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-4">
+      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-5 py-5">
         <section>
-          <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-gray-400">
+          <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">
             AI 接口
           </h3>
-          <p className="mb-3 text-xs leading-relaxed text-gray-500">
+          <p className="mb-3 text-xs leading-relaxed text-slate-600">
             API Key 与 Base URL 优先保存在本机（localStorage）。可选在部署环境通过{' '}
-            <code className="rounded bg-gray-100 px-1 py-0.5 text-[10px]">.env</code>{' '}
-            提供 <code className="rounded bg-gray-100 px-1 py-0.5 text-[10px]">VITE_*</code>{' '}
+            <code className="rounded bg-slate-100/90 px-1 py-0.5 text-[10px] text-slate-600">.env</code>{' '}
+            提供 <code className="rounded bg-slate-100/90 px-1 py-0.5 text-[10px] text-slate-600">VITE_*</code>{' '}
             默认值（会打进前端包，勿用于公开仓库）。
           </p>
 
@@ -135,7 +143,7 @@ function SettingsDrawerInner({ onClose, titleId }) {
                 className={fieldClass}
                 placeholder="https://api.openai.com/v1"
               />
-              <p className="mt-1 text-[11px] text-gray-400">
+              <p className="mt-1 text-[11px] text-slate-400">
                 DeepSeek 示例：https://api.deepseek.com/v1
               </p>
             </div>
@@ -156,11 +164,50 @@ function SettingsDrawerInner({ onClose, titleId }) {
           </div>
         </section>
 
-        <section className="border-t border-gray-100 pt-4">
-          <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-gray-400">
+        <section className="border-t border-slate-100 pt-5">
+          <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+            云端同步
+          </h3>
+          <p className="mb-3 text-xs leading-relaxed text-slate-600">
+            将当前本机 IndexedDB 全量备份上传至 Supabase（需登录）。断网时仍可继续使用本地功能。
+          </p>
+          {!isSupabaseConfigured ? (
+            <p className="rounded-lg border border-amber-100 bg-amber-50/80 px-3 py-2 text-xs text-amber-900">
+              未配置 Supabase 环境变量，无法使用云端同步。
+            </p>
+          ) : !user ? (
+            <p className="text-xs text-slate-600">
+              请先{' '}
+              <Link to="/login" className="font-medium text-indigo-500/90 underline-offset-2 hover:underline">
+                登录
+              </Link>{' '}
+              后再同步。
+            </p>
+          ) : (
+            <button
+              type="button"
+              disabled={cloudBusy}
+              onClick={() => {
+                setCloudBusy(true)
+                void syncToCloud().finally(() => setCloudBusy(false))
+              }}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-indigo-100/90 bg-indigo-50/50 px-3 py-2.5 text-sm font-medium text-indigo-900 transition hover:bg-indigo-50 disabled:opacity-50"
+            >
+              {cloudBusy ? (
+                <Loader2 className="size-[18px] animate-spin text-indigo-400" strokeWidth={1.5} aria-hidden />
+              ) : (
+                <Cloud className="size-[18px] text-indigo-400/90" strokeWidth={1.5} aria-hidden />
+              )}
+              立即同步
+            </button>
+          )}
+        </section>
+
+        <section className="border-t border-slate-100 pt-5">
+          <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">
             数据迁移
           </h3>
-          <p className="mb-3 text-xs leading-relaxed text-gray-500">
+          <p className="mb-3 text-xs leading-relaxed text-slate-600">
             将 IndexedDB 中的经历、简历、岗位导出为 JSON；在新浏览器选择文件导入即可恢复（会覆盖当前本地数据）。
           </p>
           <input
@@ -176,24 +223,24 @@ function SettingsDrawerInner({ onClose, titleId }) {
               type="button"
               disabled={backupBusy}
               onClick={() => void handleExportBackup()}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200/90 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90 disabled:opacity-50"
             >
-              <Download className="size-4" strokeWidth={2} aria-hidden />
+              <Download className="size-[18px] text-slate-400" strokeWidth={1.5} aria-hidden />
               导出备份
             </button>
             <button
               type="button"
               disabled={backupBusy}
               onClick={handlePickImport}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200/90 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90 disabled:opacity-50"
             >
-              <Upload className="size-4" strokeWidth={2} aria-hidden />
+              <Upload className="size-[18px] text-slate-400" strokeWidth={1.5} aria-hidden />
               导入备份
             </button>
           </div>
           {backupMsg ? (
             <p
-              className={`mt-2 text-xs ${backupMsg.includes('失败') || backupMsg.includes('不支持') ? 'text-red-600' : 'text-emerald-700'}`}
+              className={`mt-2 text-xs ${backupMsg.includes('失败') || backupMsg.includes('不支持') ? 'text-red-600' : 'text-emerald-600/90'}`}
               role="status"
             >
               {backupMsg}
@@ -202,22 +249,22 @@ function SettingsDrawerInner({ onClose, titleId }) {
         </section>
       </div>
 
-      <div className="border-t border-gray-100 px-4 py-3">
+      <div className="border-t border-slate-100 px-5 py-4">
         {savedHint ? (
-          <p className="mb-2 text-xs font-medium text-emerald-600">{savedHint}</p>
+          <p className="mb-2 text-xs font-medium text-emerald-600/90">{savedHint}</p>
         ) : null}
         <div className="flex gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+            className="flex-1 rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90"
           >
             关闭
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="flex-1 rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800"
+            className="flex-1 rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-700"
           >
             保存 AI 设置
           </button>

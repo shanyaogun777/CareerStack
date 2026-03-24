@@ -17,7 +17,7 @@ export function ResumeCustomModuleBlock({ module, onPatch, onRemove }) {
   const hasPublic = filled(module.title) || filled(module.body)
 
   const inputCls =
-    'w-full rounded-md border border-gray-200 bg-white px-2 py-1.5 text-[11px] text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-200'
+    'w-full rounded-lg border border-slate-200/90 bg-white px-2 py-1.5 text-[11px] text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-100'
 
   return (
     <section
@@ -26,7 +26,7 @@ export function ResumeCustomModuleBlock({ module, onPatch, onRemove }) {
         !hasPublic && 'resume-custom-empty-export',
       )}
     >
-      <div className="resume-ui-only mb-3 space-y-2 rounded-lg border border-gray-200 bg-gray-50/80 p-3">
+      <div className="resume-ui-only mb-3 space-y-2 rounded-xl border border-slate-200/90 bg-slate-50/70 p-3.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <label className="sr-only" htmlFor={`custom-title-${module.id}`}>
             模块标题
@@ -41,28 +41,28 @@ export function ResumeCustomModuleBlock({ module, onPatch, onRemove }) {
           <button
             type="button"
             onClick={onRemove}
-            className="inline-flex items-center gap-1 rounded-md border border-red-100 bg-white px-2.5 py-1.5 text-[10px] font-medium text-red-600 hover:bg-red-50"
+            className="inline-flex items-center gap-1 rounded-lg border border-red-100/90 bg-white px-2.5 py-1.5 text-[10px] font-medium text-red-500/90 transition-colors hover:bg-red-50/80"
           >
-            <Trash2 className="size-3.5" strokeWidth={1.75} aria-hidden />
+            <Trash2 className="size-[14px] text-slate-400" strokeWidth={1.5} aria-hidden />
             删除模块
           </button>
         </div>
         <div>
-          <label className="mb-0.5 block text-[10px] font-medium text-gray-500">
+          <label className="mb-0.5 block text-[10px] font-medium text-slate-500">
             Markdown 源码
           </label>
           <textarea
             value={module.body}
             onChange={(e) => onPatch({ body: e.target.value })}
             spellCheck={false}
-            className="min-h-[100px] w-full resize-y rounded border border-dashed border-gray-200 bg-white px-2 py-1.5 font-mono text-[11px] leading-relaxed text-gray-800 focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-200"
+            className="min-h-[100px] w-full resize-y rounded-lg border border-dashed border-slate-200/90 bg-white px-2 py-1.5 font-mono text-[11px] leading-relaxed text-slate-800 focus:border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-100"
             placeholder="支持 **加粗**、列表与嵌套，与经历模块一致。"
           />
         </div>
       </div>
 
       {filled(module.title) ? (
-        <h2 className="mb-2 border-b border-gray-900/90 pb-1.5 text-[13px] font-semibold uppercase tracking-[0.12em] text-gray-900">
+        <h2 className="mb-2 border-b border-slate-800/35 pb-1.5 text-[13px] font-semibold uppercase tracking-[0.12em] text-slate-800">
           {module.title.trim()}
         </h2>
       ) : null}

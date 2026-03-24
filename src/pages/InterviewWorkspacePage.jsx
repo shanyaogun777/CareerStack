@@ -7,15 +7,8 @@ import {
   useState,
 } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import {
-  ArrowLeft,
-  GripVertical,
-  Loader2,
-  Plus,
-  Sparkles,
-  Trash2,
-  Wand2,
-} from 'lucide-react'
+import { appPath } from '../lib/appPaths'
+import { ArrowLeft, Loader2, Plus, Sparkles, Trash2, Wand2 } from 'lucide-react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import {
   experienceRepository,
@@ -295,9 +288,9 @@ export function InterviewWorkspacePage() {
 
   if (invalidId) {
     return (
-      <div className="px-8 py-12 text-center text-sm text-gray-600">
+      <div className="px-8 py-12 text-center text-sm leading-relaxed text-slate-600">
         无效的岗位链接。
-        <Link to="/interview" className="ml-2 text-violet-600 hover:underline">
+        <Link to={appPath('interview')} className="ml-2 text-indigo-400/85 hover:underline">
           返回列表
         </Link>
       </div>
@@ -314,8 +307,8 @@ export function InterviewWorkspacePage() {
 
   if (!job) {
     return (
-      <div className="flex flex-1 items-center justify-center gap-2 py-24 text-sm text-gray-500">
-        <Loader2 className="size-5 animate-spin" aria-hidden />
+      <div className="flex flex-1 items-center justify-center gap-2 py-24 text-sm text-slate-500">
+        <Loader2 className="size-5 animate-spin text-indigo-400/70" strokeWidth={1.5} aria-hidden />
         加载岗位…
       </div>
     )
@@ -323,36 +316,36 @@ export function InterviewWorkspacePage() {
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col px-4 md:px-8">
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-gray-200/80 pb-4">
+      <header className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
-            onClick={() => navigate('/interview')}
-            className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-[12px] font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+            onClick={() => navigate(appPath('interview'))}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/90 bg-white px-2.5 py-1.5 text-[12px] font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90"
           >
-            <ArrowLeft className="size-3.5" strokeWidth={2} aria-hidden />
+            <ArrowLeft className="size-[14px] text-slate-400" strokeWidth={1.5} aria-hidden />
             返回列表
           </button>
           <div className="min-w-0">
-            <h1 className="truncate text-base font-semibold text-gray-900">
+            <h1 className="truncate text-base font-semibold tracking-tight text-slate-800">
               {job.position || '未命名职位'}
             </h1>
-            <p className="truncate text-xs text-gray-500">{job.company || '—'}</p>
+            <p className="truncate text-xs leading-relaxed text-slate-500">{job.company || '—'}</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setManualOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-[12px] font-semibold text-blue-900 hover:bg-blue-100"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-100/90 bg-indigo-50/50 px-3 py-2 text-[12px] font-semibold text-indigo-900/80 transition-colors hover:bg-indigo-50/80"
           >
-            <Plus className="size-3.5" strokeWidth={2} aria-hidden />
+            <Plus className="size-[14px] text-indigo-400/80" strokeWidth={1.5} aria-hidden />
             手动新增问题
           </button>
           <button
             type="button"
             onClick={() => setParseOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-2 text-[12px] font-semibold text-gray-800 shadow-sm hover:bg-gray-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-[12px] font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90"
           >
             面经深度解析
           </button>
@@ -367,10 +360,10 @@ export function InterviewWorkspacePage() {
           id="interview-nav"
           defaultSize={28}
           minSize={16}
-          className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+          className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
         >
-          <div className="border-b border-gray-100 px-3 py-2">
-            <h2 className="text-[11px] font-bold uppercase tracking-wide text-gray-500">
+          <div className="border-b border-slate-100 px-3.5 py-2.5">
+            <h2 className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
               题库导航
             </h2>
           </div>
@@ -386,7 +379,7 @@ export function InterviewWorkspacePage() {
                   active={selectedQid === q.id}
                   onClick={() => setSelectedQid(q.id)}
                   onRemove={() => void removeQuestion(q.id)}
-                  badgeClass="bg-violet-100 text-violet-800"
+                  badgeClass="bg-indigo-50/90 text-indigo-800/75"
                   badge="AI"
                   label={questionTitle(q)}
                 />
@@ -404,7 +397,7 @@ export function InterviewWorkspacePage() {
                   active={selectedQid === q.id}
                   onClick={() => setSelectedQid(q.id)}
                   onRemove={() => void removeQuestion(q.id)}
-                  badgeClass="bg-blue-100 text-blue-800"
+                  badgeClass="bg-slate-100/90 text-slate-600"
                   badge="采集"
                   label={questionTitle(q)}
                 />
@@ -414,19 +407,19 @@ export function InterviewWorkspacePage() {
         </Panel>
 
         <Separator className="group flex w-3 max-w-[12px] shrink-0 items-center justify-center bg-transparent focus:outline-none data-[separator]:cursor-col-resize">
-          <div className="flex h-16 w-1.5 items-center justify-center rounded-full bg-gray-200 transition-colors group-hover:bg-violet-300" />
+          <div className="flex h-16 w-1.5 items-center justify-center rounded-full bg-slate-200/80 transition-colors group-hover:bg-indigo-200/60" />
         </Separator>
 
         <Panel
           id="interview-editor"
           minSize={45}
           defaultSize={72}
-          className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+          className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
         >
           {selected ? (
             <div className="flex min-h-0 flex-1 flex-col">
-              <div className="shrink-0 border-b border-gray-100 px-4 py-3">
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+              <div className="shrink-0 border-b border-slate-100 px-5 py-4">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                   问题标题
                 </label>
                 <input
@@ -438,19 +431,19 @@ export function InterviewWorkspacePage() {
                       question: e.target.value,
                     })
                   }
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-[13px] font-medium text-gray-900 focus:border-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-100"
+                  className="w-full rounded-lg border border-slate-200/90 px-3 py-2 text-[13px] font-medium text-slate-800 focus:border-indigo-200/90 focus:outline-none focus:ring-2 focus:ring-indigo-50"
                 />
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"
                     disabled={aiMockLoading}
                     onClick={() => void runAiMockThree()}
-                    className="inline-flex items-center gap-2 rounded-md bg-violet-600 px-3 py-2 text-[12px] font-semibold text-white shadow-sm hover:bg-violet-700 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg bg-indigo-500/90 px-3 py-2 text-[12px] font-semibold text-white shadow-sm transition-colors hover:bg-indigo-500 disabled:opacity-50"
                   >
                     {aiMockLoading ? (
-                      <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                      <Loader2 className="size-[14px] animate-spin text-white/90" strokeWidth={1.5} aria-hidden />
                     ) : (
-                      <Sparkles className="size-3.5" strokeWidth={2} aria-hidden />
+                      <Sparkles className="size-[14px] text-white/90" strokeWidth={1.5} aria-hidden />
                     )}
                     AI 模拟提问（3 道）
                   </button>
@@ -458,19 +451,19 @@ export function InterviewWorkspacePage() {
                     type="button"
                     disabled={polishLoading}
                     onClick={() => void runPolishAnswer()}
-                    className="inline-flex items-center gap-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2 text-[12px] font-semibold text-violet-900 hover:bg-violet-100 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg border border-indigo-100/90 bg-indigo-50/50 px-3 py-2 text-[12px] font-semibold text-indigo-900/80 transition-colors hover:bg-indigo-50/80 disabled:opacity-50"
                   >
                     {polishLoading ? (
-                      <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                      <Loader2 className="size-[14px] animate-spin text-indigo-400/80" strokeWidth={1.5} aria-hidden />
                     ) : (
-                      <Wand2 className="size-3.5" strokeWidth={2} aria-hidden />
+                      <Wand2 className="size-[14px] text-indigo-400/80" strokeWidth={1.5} aria-hidden />
                     )}
                     AI 优化回答（STAR）
                   </button>
                 </div>
               </div>
-              <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+              <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                   回答草稿（Markdown）
                 </label>
                 <textarea
@@ -481,11 +474,11 @@ export function InterviewWorkspacePage() {
                   spellCheck={false}
                   rows={14}
                   placeholder="在此撰写答题要点、STAR 结构、案例细节…"
-                  className="min-h-[200px] w-full resize-y rounded-lg border border-gray-200 bg-gray-50/50 px-3 py-2 font-mono text-[12px] leading-relaxed text-gray-900 focus:border-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-100"
+                  className="min-h-[200px] w-full resize-y rounded-lg border border-slate-200/90 bg-slate-50/50 px-3 py-2 font-mono text-[12px] leading-relaxed text-slate-800 focus:border-indigo-200/90 focus:outline-none focus:ring-2 focus:ring-indigo-50"
                 />
                 {selected.type !== 'USER_COLLECTED' && selected.answerHint?.trim() ? (
-                  <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50/80 px-3 py-2 text-[11px] text-gray-600">
-                    <span className="font-semibold text-gray-700">参考思路：</span>
+                  <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50/70 px-3 py-2 text-[11px] leading-relaxed text-slate-600">
+                    <span className="font-semibold text-slate-700">参考思路：</span>
                     {selected.answerHint}
                   </div>
                 ) : null}
@@ -494,16 +487,16 @@ export function InterviewWorkspacePage() {
                     href={selected.sourceUrl.trim()}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="mt-2 inline-block text-[11px] text-blue-600 hover:underline"
+                    className="mt-2 inline-block text-[11px] text-indigo-400/85 hover:underline"
                   >
                     查看面经原帖
                   </a>
                 ) : null}
-                <div className="mt-4 border-t border-gray-100 pt-3">
-                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                <div className="mt-4 border-t border-slate-100 pt-4">
+                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                     预览
                   </div>
-                <div className="rounded-lg border border-gray-100 bg-white p-3">
+                <div className="rounded-lg border border-slate-100 bg-white p-3.5">
                   <MarkdownPreview
                     markdown={selected.answerDraft ?? ''}
                     compact
@@ -516,7 +509,7 @@ export function InterviewWorkspacePage() {
             </div>
           ) : (
             <EmptyState
-              className="m-4 flex-1 border-0 bg-gray-50/50"
+              className="m-4 flex-1 border-0 bg-slate-50/50"
               title="选题开始备战"
               description="从左侧选择题后在右侧撰写 Markdown 草稿；也可用手动新增、面经解析或 AI 模拟题填充题库。"
             />
@@ -532,23 +525,23 @@ export function InterviewWorkspacePage() {
           onClick={() => setManualOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-xl bg-white p-4 shadow-xl"
+            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl ring-1 ring-slate-100"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-sm font-semibold text-gray-900">手动新增问题</h3>
+            <h3 className="text-sm font-semibold tracking-tight text-slate-800">手动新增问题</h3>
             <div className="mt-3 space-y-2">
               <textarea
                 value={manualContent}
                 onChange={(e) => setManualContent(e.target.value)}
                 rows={3}
-                className="w-full rounded border border-gray-200 px-2 py-1.5 text-[12px]"
+                className="w-full rounded-lg border border-slate-200/90 px-2.5 py-2 text-[12px] leading-relaxed text-slate-800"
                 placeholder="问题内容"
               />
               <input
                 type="url"
                 value={manualSource}
                 onChange={(e) => setManualSource(e.target.value)}
-                className="w-full rounded border border-gray-200 px-2 py-1.5 text-[12px]"
+                className="w-full rounded-lg border border-slate-200/90 px-2.5 py-2 text-[12px] text-slate-800"
                 placeholder="来源链接（可选）"
               />
               <select
@@ -558,7 +551,7 @@ export function InterviewWorkspacePage() {
                     /** @type {'基础能力'|'项目深挖'|'行为面试'} */ (e.target.value),
                   )
                 }
-                className="w-full rounded border border-gray-200 px-2 py-1.5 text-[12px]"
+                className="w-full rounded-lg border border-slate-200/90 px-2.5 py-2 text-[12px] text-slate-800"
               >
                 <option value="基础能力">基础能力</option>
                 <option value="项目深挖">项目深挖</option>
@@ -569,7 +562,7 @@ export function InterviewWorkspacePage() {
               <button
                 type="button"
                 onClick={() => setManualOpen(false)}
-                className="rounded-md border border-gray-200 px-3 py-1.5 text-[12px]"
+                className="rounded-lg border border-slate-200/90 px-3 py-1.5 text-[12px] text-slate-700 transition-colors hover:bg-slate-50/90"
               >
                 取消
               </button>
@@ -577,7 +570,7 @@ export function InterviewWorkspacePage() {
                 type="button"
                 onClick={() => void saveManual()}
                 disabled={!manualContent.trim()}
-                className="rounded-md bg-blue-600 px-3 py-1.5 text-[12px] font-semibold text-white disabled:opacity-50"
+                className="rounded-lg bg-slate-800 px-3 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-slate-700 disabled:opacity-50"
               >
                 保存
               </button>
@@ -594,25 +587,25 @@ export function InterviewWorkspacePage() {
           onClick={() => !parseLoading && setParseOpen(false)}
         >
           <div
-            className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl bg-white p-4 shadow-xl"
+            className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-white p-5 shadow-xl ring-1 ring-slate-100"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-sm font-semibold text-gray-900">面经深度解析</h3>
-            <p className="mt-1 text-[11px] text-gray-500">
+            <h3 className="text-sm font-semibold tracking-tight text-slate-800">面经深度解析</h3>
+            <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
               粘贴面经全文，AI 将拆解为独立问题并加入本题库。
             </p>
             <input
               type="url"
               value={parseSource}
               onChange={(e) => setParseSource(e.target.value)}
-              className="mt-3 rounded border border-gray-200 px-2 py-1.5 text-[12px]"
+              className="mt-3 rounded-lg border border-slate-200/90 px-2.5 py-2 text-[12px] text-slate-800"
               placeholder="原帖链接（可选，写入每条记录）"
             />
             <textarea
               ref={parseRef}
               defaultValue=""
               rows={12}
-              className="mt-2 min-h-[200px] w-full resize-y rounded border border-gray-200 px-2 py-1.5 font-mono text-[11px]"
+              className="mt-2 min-h-[200px] w-full resize-y rounded-lg border border-slate-200/90 px-2.5 py-2 font-mono text-[11px] leading-relaxed text-slate-800"
               placeholder="粘贴面经原文…"
             />
             <div className="mt-4 flex justify-end gap-2">
@@ -620,7 +613,7 @@ export function InterviewWorkspacePage() {
                 type="button"
                 disabled={parseLoading}
                 onClick={() => setParseOpen(false)}
-                className="rounded-md border border-gray-200 px-3 py-1.5 text-[12px]"
+                className="rounded-lg border border-slate-200/90 px-3 py-1.5 text-[12px] text-slate-700 transition-colors hover:bg-slate-50/90"
               >
                 取消
               </button>
@@ -628,10 +621,10 @@ export function InterviewWorkspacePage() {
                 type="button"
                 disabled={parseLoading}
                 onClick={() => void runParseFace经()}
-                className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-1.5 text-[12px] font-semibold text-white disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-indigo-500/90 px-3 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
               >
                 {parseLoading ? (
-                  <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                  <Loader2 className="size-[14px] animate-spin text-white/90" strokeWidth={1.5} aria-hidden />
                 ) : null}
                 解析并插入
               </button>
@@ -656,14 +649,14 @@ function NavSection({ title, emptyHint, emptyDescription, children, className })
   const n = Children.count(children)
   return (
     <div className={className}>
-      <div className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+      <div className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
         {title}
       </div>
       {n === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-100 bg-gray-50/90 px-2 py-3 text-center">
-          <p className="text-[11px] font-medium text-gray-500">{emptyHint}</p>
+        <div className="rounded-lg border border-dashed border-slate-100 bg-slate-50/80 px-2 py-3 text-center">
+          <p className="text-[11px] font-medium text-slate-500">{emptyHint}</p>
           {emptyDescription ? (
-            <p className="mt-1 text-[10px] leading-relaxed text-gray-400">{emptyDescription}</p>
+            <p className="mt-1 text-[10px] leading-relaxed text-slate-400">{emptyDescription}</p>
           ) : null}
         </div>
       ) : (
@@ -690,8 +683,8 @@ function NavItem({ active, onClick, onRemove, badge, badgeClass, label }) {
         className={cn(
           'group flex items-start gap-1 rounded-lg border px-2 py-1.5 text-left transition-colors',
           active
-            ? 'border-violet-200 bg-violet-50/90'
-            : 'border-transparent hover:bg-gray-50',
+            ? 'border-indigo-100/90 bg-indigo-50/50'
+            : 'border-transparent hover:bg-slate-50/80',
         )}
       >
         <button
@@ -704,7 +697,7 @@ function NavItem({ active, onClick, onRemove, badge, badgeClass, label }) {
           >
             {badge}
           </span>
-          <span className="mt-0.5 block line-clamp-3 text-[11px] font-medium leading-snug text-gray-800">
+          <span className="mt-0.5 block line-clamp-3 text-[11px] font-medium leading-snug text-slate-800">
             {label}
           </span>
         </button>
@@ -714,11 +707,11 @@ function NavItem({ active, onClick, onRemove, badge, badgeClass, label }) {
             e.stopPropagation()
             onRemove()
           }}
-          className="shrink-0 rounded p-0.5 text-gray-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+          className="shrink-0 rounded p-0.5 text-slate-400 opacity-0 transition-opacity hover:bg-red-50/80 hover:text-red-500/90 group-hover:opacity-100"
           title="删除"
           aria-label="删除"
         >
-          <Trash2 className="size-3.5" strokeWidth={1.75} />
+          <Trash2 className="size-[14px]" strokeWidth={1.5} />
         </button>
       </div>
     </li>

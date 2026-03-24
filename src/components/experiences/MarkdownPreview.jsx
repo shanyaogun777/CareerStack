@@ -28,7 +28,7 @@ export function MarkdownPreview({
 
   if (!src) {
     return (
-      <p className="text-sm italic text-gray-400">{emptyHint}</p>
+      <p className="text-sm italic text-slate-400">{emptyHint}</p>
     )
   }
 
@@ -39,7 +39,7 @@ export function MarkdownPreview({
   return (
     <div className={`experience-md ${className}`.trim()}>
       <div
-        className={`${proseSize} prose-headings:font-semibold prose-headings:text-gray-900 prose-p:text-gray-600 prose-li:text-gray-600 prose-table:text-sm prose-th:border prose-th:border-gray-200 prose-td:border prose-td:border-gray-200`}
+        className={`${proseSize} prose-headings:font-semibold prose-headings:text-slate-800 prose-p:text-slate-600 prose-li:text-slate-600 prose-table:text-sm prose-th:border prose-th:border-slate-100 prose-td:border prose-td:border-slate-100`}
         lang="zh-Hans"
       >
         <ReactMarkdown

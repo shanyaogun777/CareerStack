@@ -66,11 +66,21 @@
   --color-zinc-800: #27272a;
   --color-zinc-900: #18181b;
   --color-zinc-950: #09090b;
+
+  /* 应用 UI 字体栈：西文 Inter / 系统 SF，中文苹方 */
+  --font-sans:
+    'Inter', 'SF Pro Display', 'PingFang SC', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* 品牌首页：显式使用 Inter → SF Pro Display → 苹方（与 font-landing 一致） */
+  --font-landing:
+    'Inter', 'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', ui-sans-serif,
+    system-ui, sans-serif;
 }
 
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
+  --text: #475569;
+  --text-h: #1e293b;
   --bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
@@ -81,11 +91,12 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Inter', 'SF Pro Display', 'PingFang SC', system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  --heading: 'Inter', 'SF Pro Display', 'PingFang SC', system-ui, -apple-system, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
+  font: 18px/162% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
@@ -122,6 +133,9 @@
 
 body {
   margin: 0;
+  font-family: var(--sans);
+  color: var(--text);
+  line-height: 1.625;
 }
 
 #root {
@@ -152,7 +166,7 @@ body {
 .experience-md .prose {
   font-size: 0.875rem;
   line-height: 1.65;
-  color: #374151;
+  color: #475569;
 }
 
 .experience-md .prose :where(ol) {
@@ -194,7 +208,7 @@ body {
 
 .experience-md .prose :where(strong) {
   font-weight: 600;
-  color: #111827;
+  color: #1e293b;
 }
 
 .experience-md .prose :where(pre) {
@@ -416,4 +430,44 @@ code {
 .careerstack-calendar .react-calendar__tile.has-activity.is-past-day:not(.react-calendar__tile--active) {
   background: #fafafa;
   opacity: 0.92;
+}
+
+/* 品牌首页入场动画（仅 opacity + transform，利于合成层与首屏） */
+@keyframes careerstack-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@layer utilities {
+  .font-landing {
+    font-family: var(--font-landing);
+  }
+
+  /* 品牌首页 Hero 大标题：中文马善政 / 英文 Gelasio（由 index.html 加载） */
+  .font-hero-cn {
+    font-family: 'Ma Shan Zheng', var(--font-landing), cursive;
+  }
+
+  .font-hero-en {
+    font-family: 'Gelasio', Georgia, 'Times New Roman', serif;
+  }
+
+  .animate-careerstack-fade-in-up {
+    opacity: 0;
+    animation: careerstack-fade-in-up 0.68s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-careerstack-fade-in-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }

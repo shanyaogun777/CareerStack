@@ -11,9 +11,9 @@ import {
 import { hasAiApiKey, parseJobDescription } from '../../services/ai'
 
 const fieldClass =
-  'w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200'
+  'w-full rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100'
 
-const labelClass = 'mb-1 block text-xs font-medium text-gray-700'
+const labelClass = 'mb-1 block text-xs font-medium text-slate-600'
 
 /**
  * @typedef {Object} JobFormPrefill
@@ -246,22 +246,22 @@ export function JobFormDrawer({ open, jobId, onClose, onSaved, prefill, onConsum
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-labelledby={titleId}>
       <button type="button" className="absolute inset-0 bg-black/30" aria-label="关闭" onClick={onClose} />
-      <div className="relative flex h-full w-full max-w-xl flex-col border-l border-gray-200 bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-          <h2 id={titleId} className="text-sm font-semibold text-gray-900">
+      <div className="relative flex h-full w-full max-w-xl flex-col border-l border-slate-100 bg-white shadow-xl">
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+          <h2 id={titleId} className="text-sm font-semibold tracking-tight text-slate-800">
             {jobId == null ? '添加岗位' : '编辑岗位'}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100"
+            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
             aria-label="关闭"
           >
-            <X className="size-4" strokeWidth={2} />
+            <X className="size-[18px]" strokeWidth={1.5} />
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-5">
           {loadError ? (
             <p className="text-sm text-red-600" role="alert">
               {loadError}
@@ -369,12 +369,12 @@ export function JobFormDrawer({ open, jobId, onClose, onSaved, prefill, onConsum
                 type="button"
                 onClick={() => void handleAiParse()}
                 disabled={parsing}
-                className="inline-flex items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-[11px] font-semibold text-violet-800 hover:bg-violet-100 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-100/90 bg-indigo-50/50 px-2.5 py-1.5 text-[11px] font-semibold text-indigo-900/75 transition-colors hover:bg-indigo-50/80 disabled:opacity-50"
               >
                 {parsing ? (
-                  <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                  <Loader2 className="size-[14px] animate-spin text-indigo-400/80" strokeWidth={1.5} aria-hidden />
                 ) : (
-                  <Sparkles className="size-3.5" strokeWidth={2} aria-hidden />
+                  <Sparkles className="size-[14px] text-indigo-400/80" strokeWidth={1.5} aria-hidden />
                 )}
                 AI 智能解析
               </button>
@@ -395,8 +395,8 @@ export function JobFormDrawer({ open, jobId, onClose, onSaved, prefill, onConsum
             ) : null}
           </div>
 
-          <div className="rounded-lg border border-gray-100 bg-gray-50/80 p-3">
-            <p className="mb-2 text-[11px] font-semibold text-gray-600">结构化信息（可手动修改）</p>
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+            <p className="mb-2 text-[11px] font-semibold text-slate-600">结构化信息（可手动修改）</p>
             <div className="space-y-3">
               <div>
                 <label className={labelClass}>核心职责</label>
@@ -439,11 +439,11 @@ export function JobFormDrawer({ open, jobId, onClose, onSaved, prefill, onConsum
           </div>
         </div>
 
-        <div className="flex gap-2 border-t border-gray-100 px-4 py-3">
+        <div className="flex gap-2 border-t border-slate-100 px-5 py-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+            className="flex-1 rounded-lg border border-slate-200/90 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90"
           >
             取消
           </button>
@@ -451,7 +451,7 @@ export function JobFormDrawer({ open, jobId, onClose, onSaved, prefill, onConsum
             type="button"
             onClick={() => void handleSave()}
             disabled={saving}
-            className="flex-1 rounded-md bg-gray-900 px-3 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-50"
+            className="flex-1 rounded-lg bg-slate-800 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-700 disabled:opacity-50"
           >
             {saving ? '保存中…' : '保存'}
           </button>

@@ -53,9 +53,9 @@ export function computeStatusCounts(jobs) {
 export function computeFunnel(jobs) {
   const c = computeStatusCounts(jobs)
   return [
-    { name: '已投递', value: c.已投递, fill: '#64748b' },
-    { name: '面试中', value: c.面试中, fill: '#aa3bff' },
-    { name: '已录用', value: c.已录用, fill: '#059669' },
+    { name: '已投递', value: c.已投递, fill: '#94a3b8' },
+    { name: '面试中', value: c.面试中, fill: '#818cf8' },
+    { name: '已录用', value: c.已录用, fill: '#6ee7b7' },
   ]
 }
 

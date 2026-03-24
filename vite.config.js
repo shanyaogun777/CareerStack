@@ -23,7 +23,8 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'any',
-        start_url: '/',
+        /* 从主屏幕打开时直接进入工作台（/app 会索引跳转到指挥部） */
+        start_url: '/app',
         scope: '/',
         icons: [
           {

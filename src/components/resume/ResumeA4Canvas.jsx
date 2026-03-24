@@ -27,8 +27,8 @@ function DropStack({ id, section, children, className }) {
     <div
       ref={setNodeRef}
       className={cn(
-        'resume-a4-dropzone min-h-[52px] rounded-md border border-dashed border-gray-200/90 bg-gray-50/20 p-2 transition-colors',
-        isOver && 'border-gray-400 bg-amber-50/40',
+        'resume-a4-dropzone min-h-[52px] rounded-lg border border-dashed border-slate-200/90 bg-slate-50/30 p-2.5 transition-colors',
+        isOver && 'border-slate-400/70 bg-amber-50/35',
         className,
       )}
     >
@@ -56,21 +56,21 @@ function SectionHeaderRemovable({ title, onRemove, className }) {
   return (
     <div
       className={cn(
-        'mb-3 flex items-center justify-between gap-2 border-b border-gray-900/90 pb-1.5',
+        'mb-3 flex items-center justify-between gap-2 border-b border-slate-800/35 pb-1.5',
         className,
       )}
     >
-      <h2 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-gray-900">
+      <h2 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-slate-800">
         {title}
       </h2>
       <button
         type="button"
         onClick={onRemove}
-        className="resume-ui-only flex size-7 items-center justify-center rounded border border-transparent text-gray-400 hover:border-red-100 hover:bg-red-50 hover:text-red-600"
+        className="resume-ui-only flex size-7 items-center justify-center rounded-lg border border-transparent text-slate-400 transition-colors hover:border-red-100/90 hover:bg-red-50/80 hover:text-red-500/90"
         aria-label={`移除${title}模块`}
         title="从画布移除该模块（内容仍保留，可通过「添加标准模块」恢复）"
       >
-        <Trash2 className="size-3.5" strokeWidth={1.75} />
+        <Trash2 className="size-[14px]" strokeWidth={1.5} />
       </button>
     </div>
   )
@@ -196,7 +196,7 @@ export const ResumeA4Canvas = forwardRef(function ResumeA4Canvas(
                 </ul>
               </SortableContext>
               {sections.education.length === 0 ? (
-                <p className="resume-ui-only px-1 py-3 text-center text-[11px] text-gray-400">
+                <p className="resume-ui-only px-1 py-3 text-center text-[11px] text-slate-400">
                   从左侧「教育背景」分类拖入素材；简历内修改不影响个人信息库。
                 </p>
               ) : null}
@@ -234,7 +234,7 @@ export const ResumeA4Canvas = forwardRef(function ResumeA4Canvas(
                 </ul>
               </SortableContext>
               {sections.work.length === 0 ? (
-                <p className="resume-ui-only px-1 py-3 text-center text-[11px] text-gray-400">
+                <p className="resume-ui-only px-1 py-3 text-center text-[11px] text-slate-400">
                   从左侧「工作/实习经历」分类拖入素材。
                 </p>
               ) : null}
@@ -279,7 +279,7 @@ export const ResumeA4Canvas = forwardRef(function ResumeA4Canvas(
                 </ul>
               </SortableContext>
               {sections.projects.length === 0 ? (
-                <p className="resume-ui-only px-1 py-3 text-center text-[11px] text-gray-400">
+                <p className="resume-ui-only px-1 py-3 text-center text-[11px] text-slate-400">
                   从左侧「项目经历」分类拖入素材。
                 </p>
               ) : null}
@@ -324,7 +324,7 @@ export const ResumeA4Canvas = forwardRef(function ResumeA4Canvas(
                 </ul>
               </SortableContext>
               {sections.campus.length === 0 ? (
-                <p className="resume-ui-only px-1 py-3 text-center text-[11px] text-gray-400">
+                <p className="resume-ui-only px-1 py-3 text-center text-[11px] text-slate-400">
                   从左侧「校园经历」分类拖入素材。
                 </p>
               ) : null}
@@ -343,14 +343,14 @@ export const ResumeA4Canvas = forwardRef(function ResumeA4Canvas(
               onRemove={() => removeStandardLayoutModule('selfEval')}
             />
             <div className="resume-ui-only mb-2">
-              <label className="mb-0.5 block text-[10px] font-medium text-gray-500">
+              <label className="mb-0.5 block text-[10px] font-medium text-slate-500">
                 Markdown 源码
               </label>
               <textarea
                 value={sections.selfEval.body}
                 onChange={(e) => patchSelfEval(e.target.value)}
                 spellCheck={false}
-                className="min-h-[88px] w-full resize-y rounded border border-dashed border-gray-200 bg-gray-50/80 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-gray-800 focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-200"
+                className="min-h-[88px] w-full resize-y rounded-lg border border-dashed border-slate-200/90 bg-slate-50/70 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-slate-800 focus:border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-100"
               />
             </div>
             {!evalEmpty ? (
@@ -371,17 +371,17 @@ export const ResumeA4Canvas = forwardRef(function ResumeA4Canvas(
   }
 
   return (
-    <div className="flex min-h-0 flex-1 justify-center overflow-auto bg-[#ebecef] px-4 py-6 md:px-8">
+    <div className="flex min-h-0 flex-1 justify-center overflow-auto bg-slate-100/80 px-4 py-6 md:px-8">
       <div
         ref={ref}
-        className="resume-a4-root h-fit w-[794px] min-h-[1123px] shrink-0 bg-white px-[48px] pb-[52px] pt-[44px] shadow-[0_10px_36px_rgba(15,23,42,0.1)] ring-1 ring-gray-200/80"
+        className="resume-a4-root h-fit w-[794px] min-h-[1123px] shrink-0 bg-white px-[48px] pb-[52px] pt-[44px] shadow-[0_10px_36px_rgba(15,23,42,0.08)] ring-1 ring-slate-100"
         style={{
           fontFamily:
             'ui-sans-serif, system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
         }}
       >
-        <div className="resume-ui-only mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-gray-50/90 px-3 py-2.5">
-          <span className="text-[10px] font-semibold text-gray-600">
+        <div className="resume-ui-only mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/80 px-3.5 py-3">
+          <span className="text-[10px] font-semibold text-slate-600">
             添加标准模块
           </span>
           {ADDABLE_STANDARD.map(({ key, label }) =>
@@ -390,7 +390,7 @@ export const ResumeA4Canvas = forwardRef(function ResumeA4Canvas(
                 key={key}
                 type="button"
                 onClick={() => addStandardLayoutModule(key)}
-                className="rounded-md border border-gray-200 bg-white px-2 py-1 text-[10px] font-medium text-gray-700 shadow-sm hover:bg-gray-100"
+                className="rounded-lg border border-slate-200/90 bg-white px-2 py-1 text-[10px] font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90"
               >
                 + {label}
               </button>
@@ -404,9 +404,9 @@ export const ResumeA4Canvas = forwardRef(function ResumeA4Canvas(
           <button
             type="button"
             onClick={addCustomModule}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-2 text-[11px] font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-[11px] font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90"
           >
-            <Plus className="size-3.5" strokeWidth={2} aria-hidden />
+            <Plus className="size-[14px] text-slate-400" strokeWidth={1.5} aria-hidden />
             添加自定义模块
           </button>
         </div>
