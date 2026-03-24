@@ -160,7 +160,7 @@ export function LandingPage() {
               style={{ animationDelay: '90ms' }}
             >
               <span className="font-hero-cn block bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent text-5xl font-normal tracking-tighter sm:text-6xl md:text-6xl md:leading-[1.12] lg:text-7xl">
-                让 Offer 触手可及
+                让工作触手可及
               </span>
               <span
                 lang="en"
@@ -201,7 +201,7 @@ export function LandingPage() {
         <section className="shrink-0 border-t border-slate-100/90 bg-white/50 px-5 py-16 backdrop-blur-sm md:py-20">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-center text-2xl font-bold tracking-tighter text-slate-800 antialiased md:text-3xl">
-              为认真求职的人设计
+              全方位助力求职
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-center text-slate-800">
               四项能力，覆盖从素材沉淀到投递与面试的闭环。
