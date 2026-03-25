@@ -5,17 +5,25 @@ import { cn } from '../../lib/cn'
  * @param {{
  *   children: import('react').ReactNode
  *   onOpenSettings?: () => void
+ *   onOpenGuide?: () => void
+ *   onNavigate?: () => void
  *   paddedMain?: boolean
  * }} props
  */
 export function AppLayout({
   children,
   onOpenSettings,
+  onOpenGuide,
+  onNavigate,
   paddedMain = true,
 }) {
   return (
     <div className="flex h-svh w-full overflow-hidden bg-white font-sans text-slate-600 antialiased">
-      <Sidebar onOpenSettings={onOpenSettings} />
+      <Sidebar
+        onOpenSettings={onOpenSettings}
+        onOpenGuide={onOpenGuide}
+        onNavigate={onNavigate}
+      />
       <main
         id="main-content"
         className={cn(

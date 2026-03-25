@@ -9,6 +9,7 @@ import {
 import { AppLayout } from './components/layout/AppLayout'
 import { LandingPage } from './pages/LandingPage'
 import { SettingsDrawer } from './components/layout/SettingsDrawer'
+import { GuideModal } from './components/layout/GuideModal'
 import { appPath } from './lib/appPaths'
 
 const Dashboard = lazy(() =>
@@ -52,14 +53,22 @@ function PageFallback() {
 
 function AppShell() {
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
   const location = useLocation()
   const paddedMain = !location.pathname.startsWith(appPath('resume'))
+
+  const closeGlobalOverlays = () => {
+    setSettingsOpen(false)
+    setGuideOpen(false)
+  }
 
   return (
     <>
       <AppLayout
         paddedMain={paddedMain}
         onOpenSettings={() => setSettingsOpen(true)}
+        onOpenGuide={() => setGuideOpen(true)}
+        onNavigate={closeGlobalOverlays}
       >
         <Suspense fallback={<PageFallback />}>
           <Outlet />
@@ -69,6 +78,7 @@ function AppShell() {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
       />
+      <GuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
     </>
   )
 }

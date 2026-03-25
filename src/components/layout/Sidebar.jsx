@@ -1,6 +1,7 @@
 import { createElement } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
+  BookOpen,
   Briefcase,
   Building2,
   ClipboardList,
@@ -38,9 +39,13 @@ function isNavActive(path, pathname) {
 }
 
 /**
- * @param {{ onOpenSettings?: () => void }} props
+ * @param {{
+ *   onOpenSettings?: () => void
+ *   onOpenGuide?: () => void
+ *   onNavigate?: () => void
+ * }} props
  */
-export function Sidebar({ onOpenSettings }) {
+export function Sidebar({ onOpenSettings, onOpenGuide, onNavigate }) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const {
@@ -98,7 +103,10 @@ export function Sidebar({ onOpenSettings }) {
               <li key={id}>
                 <button
                   type="button"
-                  onClick={() => navigate(path)}
+                  onClick={() => {
+                    onNavigate?.()
+                    navigate(path)
+                  }}
                   className={[
                     'flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition-colors duration-200',
                     active
@@ -141,16 +149,28 @@ export function Sidebar({ onOpenSettings }) {
             </button>
           </div>
         ) : null}
-        {onOpenSettings ? (
-          <button
-            type="button"
-            onClick={onOpenSettings}
-            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition-colors duration-200 hover:bg-slate-50/90 hover:text-slate-800"
-          >
-            <Settings className="size-[18px] shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden />
-            <span>设置</span>
-          </button>
-        ) : null}
+        <div className="flex flex-col gap-0.5">
+          {onOpenGuide ? (
+            <button
+              type="button"
+              onClick={onOpenGuide}
+              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition-colors duration-200 hover:bg-slate-50/90 hover:text-slate-800"
+            >
+              <BookOpen className="size-[18px] shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden />
+              <span>使用说明</span>
+            </button>
+          ) : null}
+          {onOpenSettings ? (
+            <button
+              type="button"
+              onClick={onOpenSettings}
+              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition-colors duration-200 hover:bg-slate-50/90 hover:text-slate-800"
+            >
+              <Settings className="size-[18px] shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden />
+              <span>设置</span>
+            </button>
+          ) : null}
+        </div>
       </div>
     </aside>
   )

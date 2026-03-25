@@ -24,6 +24,7 @@ import {
 import { MarkdownPreview } from '../components/experiences/MarkdownPreview'
 import { EmptyState } from '../components/ui/EmptyState'
 import { cn } from '../lib/cn'
+import { MAIN_CONTENT_OVERLAY_BOX } from '../lib/overlayLayout.js'
 
 /**
  * @param {import('../services/db.js').InterviewQuestionItem} q
@@ -519,7 +520,7 @@ export function InterviewWorkspacePage() {
 
       {manualOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className={`fixed ${MAIN_CONTENT_OVERLAY_BOX} z-50 flex items-center justify-center bg-black/40 p-4`}
           role="dialog"
           aria-modal="true"
           onClick={() => setManualOpen(false)}
@@ -581,7 +582,7 @@ export function InterviewWorkspacePage() {
 
       {parseOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className={`fixed ${MAIN_CONTENT_OVERLAY_BOX} z-50 flex items-center justify-center bg-black/40 p-4`}
           role="dialog"
           aria-modal="true"
           onClick={() => !parseLoading && setParseOpen(false)}

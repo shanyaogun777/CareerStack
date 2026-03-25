@@ -1,6 +1,7 @@
 import { Loader2, X } from 'lucide-react'
 import { MarkdownPreview } from '../experiences/MarkdownPreview'
 import { cn } from '../../lib/cn'
+import { MAIN_CONTENT_OVERLAY_BOX } from '../../lib/overlayLayout.js'
 
 /**
  * @param {{
@@ -28,7 +29,7 @@ export function ResumePolishModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4"
+      className={`fixed ${MAIN_CONTENT_OVERLAY_BOX} z-[100] flex items-center justify-center bg-black/45 p-4`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="resume-polish-title"

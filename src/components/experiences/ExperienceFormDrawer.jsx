@@ -8,6 +8,7 @@ import {
 } from '../../services/db'
 import { buildAttachmentsFromFiles } from '../../utils/fileAttachments'
 import { MarkdownPreview } from './MarkdownPreview'
+import { MAIN_CONTENT_OVERLAY_BOX } from '../../lib/overlayLayout.js'
 
 const fieldClass =
   'w-full rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100'
@@ -217,7 +218,7 @@ export function ExperienceFormDrawer({
   const isEdit = experienceId != null
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className={`fixed ${MAIN_CONTENT_OVERLAY_BOX} z-50 flex justify-end`}>
       <button
         type="button"
         aria-label="关闭抽屉"

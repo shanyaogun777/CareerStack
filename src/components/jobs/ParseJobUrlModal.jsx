@@ -2,6 +2,7 @@ import { useId, useState } from 'react'
 import { Loader2, Link2, Sparkles, X } from 'lucide-react'
 import { fetchPageTextViaProxy } from '../../services/urlImporter'
 import { hasAiApiKey, parseJobDescription } from '../../services/ai'
+import { MAIN_CONTENT_OVERLAY_BOX } from '../../lib/overlayLayout.js'
 
 const fieldClass =
   'w-full rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100'
@@ -80,8 +81,22 @@ export function ParseJobUrlModal({ open, onClose, onApply }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-      <div className="relative flex max-h-[90vh] w-full max-w-lg flex-col rounded-2xl bg-white shadow-2xl ring-1 ring-slate-100">
+    <div
+      className={`fixed ${MAIN_CONTENT_OVERLAY_BOX} z-50 flex items-center justify-center p-4`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/40"
+        aria-label="关闭"
+        onClick={onClose}
+      />
+      <div
+        className="relative flex max-h-[90vh] w-full max-w-lg flex-col rounded-2xl bg-white shadow-2xl ring-1 ring-slate-100"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <h2 id={titleId} className="text-sm font-semibold tracking-tight text-slate-800">
             从招聘链接解析

@@ -185,6 +185,12 @@ export function JobsPage() {
               onStatusChange={(st) => void handleStatusChange(st)}
               onNavigateToExperiences={() => navigate(appPath('experiences'))}
               onJobUpdated={() => void refresh()}
+              onDismiss={() => {
+                setSelectedId(null)
+                setDrawerOpen(false)
+                setEditingId(null)
+                setPrefill(null)
+              }}
             />
           </div>
         ) : (

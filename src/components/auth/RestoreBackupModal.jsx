@@ -1,7 +1,10 @@
+import { useLocation } from 'react-router-dom'
 import { formatBackupDate } from '../../services/cloudBackup.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { MAIN_CONTENT_OVERLAY_BOX } from '../../lib/overlayLayout.js'
 
 export function RestoreBackupModal() {
+  const location = useLocation()
   const {
     pendingRestore,
     confirmRestoreFromCloud,
@@ -11,10 +14,12 @@ export function RestoreBackupModal() {
   if (!pendingRestore) return null
 
   const label = formatBackupDate(pendingRestore.updatedAt)
+  const underApp = location.pathname.startsWith('/app')
+  const overlayBox = underApp ? MAIN_CONTENT_OVERLAY_BOX : 'inset-0'
 
   return (
     <div
-      className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-[2px]"
+      className={`fixed ${overlayBox} z-[150] flex items-center justify-center bg-slate-900/35 p-4 backdrop-blur-[2px]`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="restore-backup-title"

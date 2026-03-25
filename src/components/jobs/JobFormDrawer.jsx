@@ -9,6 +9,7 @@ import {
   resumeRepository,
 } from '../../services/db'
 import { hasAiApiKey, parseJobDescription } from '../../services/ai'
+import { MAIN_CONTENT_OVERLAY_BOX } from '../../lib/overlayLayout.js'
 
 const fieldClass =
   'w-full rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100'
@@ -244,7 +245,12 @@ export function JobFormDrawer({ open, jobId, onClose, onSaved, prefill, onConsum
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+    <div
+      className={`fixed ${MAIN_CONTENT_OVERLAY_BOX} z-50 flex justify-end`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
       <button type="button" className="absolute inset-0 bg-black/30" aria-label="关闭" onClick={onClose} />
       <div className="relative flex h-full w-full max-w-xl flex-col border-l border-slate-100 bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">

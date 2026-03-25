@@ -4,6 +4,7 @@ import { loadAiSettings, saveAiSettings } from '../../services/ai'
 import { downloadBackupFile, importAllDataFromJson } from '../../services/dataBackup'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { Link } from 'react-router-dom'
+import { MAIN_CONTENT_OVERLAY_BOX } from '../../lib/overlayLayout.js'
 
 const fieldClass =
   'w-full rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-100'
@@ -284,7 +285,7 @@ export function SettingsDrawer({ open, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end"
+      className={`fixed ${MAIN_CONTENT_OVERLAY_BOX} z-50 flex justify-end`}
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}

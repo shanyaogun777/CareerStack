@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ClipboardList, Loader2, Pencil, Sparkles, Trash2, UserSearch } from 'lucide-react'
+import { ClipboardList, Loader2, Pencil, Sparkles, Trash2, UserSearch, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
   JOB_STATUSES,
@@ -34,6 +34,7 @@ function isMatchCacheValid(job, selectedIds) {
  *   onStatusChange: (status: import('../../services/db.js').JobStatus) => void
  *   onNavigateToExperiences: () => void
  *   onJobUpdated: () => void | Promise<void>
+ *   onDismiss?: () => void
  * }} props
  */
 export function JobDetailPanel({
@@ -44,6 +45,7 @@ export function JobDetailPanel({
   onStatusChange,
   onNavigateToExperiences,
   onJobUpdated,
+  onDismiss,
 }) {
   const rec = recommendExperiences(job.structuredJD, experiences, 16)
   const recIds = useMemo(() => new Set(rec.map((e) => e.id)), [rec])
@@ -121,7 +123,18 @@ export function JobDetailPanel({
               </a>
             ) : null}
           </div>
-          <div className="flex shrink-0 gap-1">
+          <div className="flex shrink-0 items-center gap-1">
+            {onDismiss ? (
+              <button
+                type="button"
+                onClick={onDismiss}
+                className="rounded-lg border border-slate-200/90 p-2 text-slate-400 transition-colors hover:bg-slate-50/90 hover:text-slate-600"
+                title="关闭详情"
+                aria-label="关闭详情"
+              >
+                <X className="size-[18px]" strokeWidth={1.5} />
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={onEdit}
