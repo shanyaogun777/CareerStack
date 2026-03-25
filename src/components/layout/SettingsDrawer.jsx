@@ -1,6 +1,14 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Cloud, Download, Loader2, Upload, X } from 'lucide-react'
 import { loadAiSettings, saveAiSettings } from '../../services/ai'
+import {
+  AI_PROMPT_DEFAULTS,
+  AI_PROMPT_IDS,
+  AI_PROMPT_LABELS,
+  loadAllAiPromptsMerged,
+  resetAiPromptToDefault,
+  saveAiPromptOverrides,
+} from '../../services/aiPrompts.js'
 import { downloadBackupFile, importAllDataFromJson } from '../../services/dataBackup'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { Link } from 'react-router-dom'
@@ -30,6 +38,19 @@ function SettingsDrawerInner({ onClose, titleId }) {
   const [backupBusy, setBackupBusy] = useState(false)
   const [backupMsg, setBackupMsg] = useState('')
   const fileRef = useRef(/** @type {HTMLInputElement | null} */ (null))
+
+  /** @type {import('../../services/aiPrompts.js').AiPromptId} */
+  const initialPromptId = 'jdParse'
+  const [promptId, setPromptId] = useState(initialPromptId)
+  const [promptDraft, setPromptDraft] = useState(
+    () => loadAllAiPromptsMerged()[initialPromptId],
+  )
+  const [promptHint, setPromptHint] = useState('')
+
+  useEffect(() => {
+    setPromptDraft(loadAllAiPromptsMerged()[promptId])
+    setPromptHint('')
+  }, [promptId])
 
   useEffect(() => {
     const onKey = (e) => {
@@ -162,6 +183,80 @@ function SettingsDrawerInner({ onClose, titleId }) {
                 placeholder="gpt-4o-mini / deepseek-chat"
               />
             </div>
+          </div>
+        </section>
+
+        <section className="border-t border-slate-100 pt-5">
+          <h3 className="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+            Prompt 管理
+          </h3>
+          <p className="mb-3 text-xs leading-relaxed text-slate-600">
+            自定义各场景的 AI 系统提示词（存于本机 localStorage）。修改后即时生效；若输出格式异常，请检查是否仍要求模型返回约定 JSON
+            结构。未填写项使用内置默认文案。
+          </p>
+          <div className="space-y-3">
+            <div>
+              <label className={labelClass} htmlFor="prompt-scene-select">
+                场景
+              </label>
+              <select
+                id="prompt-scene-select"
+                value={promptId}
+                onChange={(e) =>
+                  setPromptId(/** @type {import('../../services/aiPrompts.js').AiPromptId} */ (e.target.value))
+                }
+                className={fieldClass}
+              >
+                {AI_PROMPT_IDS.map((id) => (
+                  <option key={id} value={id}>
+                    {AI_PROMPT_LABELS[id]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="prompt-draft-text">
+                系统提示词
+              </label>
+              <textarea
+                id="prompt-draft-text"
+                value={promptDraft}
+                onChange={(e) => setPromptDraft(e.target.value)}
+                spellCheck={false}
+                rows={12}
+                className={`${fieldClass} min-h-[200px] resize-y font-mono text-[11px] leading-relaxed`}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  saveAiPromptOverrides({ [promptId]: promptDraft })
+                  setPromptHint('已保存')
+                  window.setTimeout(() => setPromptHint(''), 2200)
+                }}
+                className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-700"
+              >
+                保存当前场景
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  resetAiPromptToDefault(promptId)
+                  setPromptDraft(AI_PROMPT_DEFAULTS[promptId])
+                  setPromptHint('已恢复内置默认')
+                  window.setTimeout(() => setPromptHint(''), 2200)
+                }}
+                className="rounded-lg border border-slate-200/90 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50/90"
+              >
+                恢复默认
+              </button>
+            </div>
+            {promptHint ? (
+              <p className="text-xs font-medium text-emerald-600/90" role="status">
+                {promptHint}
+              </p>
+            ) : null}
           </div>
         </section>
 

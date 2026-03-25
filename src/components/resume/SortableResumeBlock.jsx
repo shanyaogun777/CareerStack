@@ -139,7 +139,7 @@ export function SortableResumeBlock({
       </div>
 
       <div className="resume-md-surface mt-2 border-t border-slate-100 pt-2">
-        <div className="mb-1 text-[10px] font-medium text-slate-400">预览</div>
+        <div className="resume-ui-only mb-1 text-[10px] font-medium text-slate-400">预览</div>
         <MarkdownPreview
           markdown={block.description}
           compact

@@ -266,6 +266,14 @@ body {
   display: none !important;
 }
 
+/* 浏览器打印页时同样隐藏编辑层（与导出 PDF 的 .resume-export-mode 策略一致） */
+@media print {
+  .resume-ui-only,
+  .no-print {
+    display: none !important;
+  }
+}
+
 .resume-export-mode .resume-custom-empty-export,
 .resume-export-mode .resume-eval-empty-export {
   display: none !important;
