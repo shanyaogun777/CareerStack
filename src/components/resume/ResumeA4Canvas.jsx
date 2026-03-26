@@ -1,10 +1,12 @@
 import { forwardRef } from 'react'
 import {
   SortableContext,
+  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useDroppable } from '@dnd-kit/core'
-import { Plus, Trash2 } from 'lucide-react'
+import { GripVertical, Plus, Trash2 } from 'lucide-react'
 import { MarkdownPreview } from '../experiences/MarkdownPreview'
 import { cn } from '../../lib/cn'
 import { SortableResumeBlock } from './SortableResumeBlock'
@@ -72,6 +74,50 @@ function SectionHeaderRemovable({ title, onRemove, className }) {
       >
         <Trash2 className="size-[14px]" strokeWidth={1.5} />
       </button>
+    </div>
+  )
+}
+
+/**
+ * @param {{
+ *   sortableId: string
+ *   title: string
+ *   children: import('react').ReactNode
+ * }} props
+ */
+function SortableLayoutSection({ sortableId, title, children }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({
+      id: sortableId,
+      data: { kind: 'layout' },
+    })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'rounded-xl',
+        isDragging && 'opacity-80 ring-1 ring-slate-200/90 shadow-sm',
+      )}
+    >
+      <div className="resume-ui-only mb-2 flex items-center justify-end">
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 rounded-lg border border-slate-200/90 bg-white px-2 py-1 text-[10px] font-medium text-slate-600 shadow-sm"
+          aria-label={`拖拽调整「${title}」模块顺序`}
+          title={`拖拽调整「${title}」模块顺序`}
+          {...listeners}
+          {...attributes}
+        >
+          <GripVertical className="size-[13px] text-slate-400" strokeWidth={1.5} />
+          排序
+        </button>
+      </div>
+      {children}
     </div>
   )
 }
@@ -370,6 +416,8 @@ export const ResumeA4Canvas = forwardRef(function ResumeA4Canvas(
     }
   }
 
+  const layoutSortableIds = layout.map((k) => `layout:${k}`)
+
   return (
     <div className="flex min-h-0 flex-1 justify-center overflow-auto bg-slate-100/80 px-4 py-6 md:px-8">
       <div
@@ -398,7 +446,21 @@ export const ResumeA4Canvas = forwardRef(function ResumeA4Canvas(
           )}
         </div>
 
-        {layout.map((k) => renderSection(k))}
+        <SortableContext items={layoutSortableIds} strategy={verticalListSortingStrategy}>
+          {layout.map((k) => (
+            <SortableLayoutSection
+              key={k}
+              sortableId={`layout:${k}`}
+              title={
+                typeof k === 'string' && k.startsWith('custom:')
+                  ? '自定义模块'
+                  : sectionTitle[k] || '模块'
+              }
+            >
+              {renderSection(k)}
+            </SortableLayoutSection>
+          ))}
+        </SortableContext>
 
         <div className="resume-ui-only flex justify-center pb-2 pt-2">
           <button

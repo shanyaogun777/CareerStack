@@ -42,6 +42,13 @@ import Dexie from 'dexie'
  */
 
 /**
+ * @typedef {Object} ResumeBasicsCustomField
+ * @property {string} id
+ * @property {string} label
+ * @property {string} value
+ */
+
+/**
  * @typedef {Object} ResumeBasics
  * @property {string} name
  * @property {string} title
@@ -69,6 +76,7 @@ import Dexie from 'dexie'
  * @property {boolean} showLocation
  * @property {Blob} [avatarBlob]
  * @property {string} [avatarMimeType]
+ * @property {ResumeBasicsCustomField[]} customFields
  */
 
 /**
@@ -383,6 +391,7 @@ export function createDefaultBasics() {
     showGender: true,
     showPoliticalStatus: true,
     showLocation: true,
+    customFields: [],
   }
 }
 
@@ -416,13 +425,28 @@ export function mergeResumeSections(partial) {
   const base = createDefaultResumeSections()
   if (!partial || typeof partial !== 'object') return base
   const basicsIn = partial.basics && typeof partial.basics === 'object' ? partial.basics : {}
+  const customFieldsIn = Array.isArray(basicsIn.customFields)
+    ? basicsIn.customFields
+        .map((f) => {
+          const o = f && typeof f === 'object' ? f : {}
+          return {
+            id:
+              typeof o.id === 'string' && o.id.trim()
+                ? o.id.trim()
+                : crypto.randomUUID(),
+            label: String(o.label ?? ''),
+            value: String(o.value ?? ''),
+          }
+        })
+        .filter((f) => f.id)
+    : base.basics.customFields
   const educationRaw = Array.isArray(partial.education)
     ? partial.education
     : base.education
   return {
     ...base,
     ...partial,
-    basics: { ...base.basics, ...basicsIn },
+    basics: { ...base.basics, ...basicsIn, customFields: customFieldsIn },
     education: migrateLegacyEducationList(educationRaw),
     work: Array.isArray(partial.work) ? partial.work : base.work,
     projects: Array.isArray(partial.projects) ? partial.projects : base.projects,

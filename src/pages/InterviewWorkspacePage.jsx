@@ -434,9 +434,9 @@ export function InterviewWorkspacePage() {
         experiences,
         {
           systemPrompt,
-          faceExpReference,
           interviewStage,
           customStageDraft: customPromptDraft,
+          ...(willUseFaceExpDivergent ? { faceExpReference } : {}),
         },
       )
       const next = [...(job.interviewQuestions || []), ...items]
@@ -906,11 +906,38 @@ export function InterviewWorkspacePage() {
               </div>
             </div>
           ) : (
-            <EmptyState
-              className="m-4 flex-1 border-0 bg-slate-50/50"
-              title="选题开始备战"
-              description="从左侧选择题后在右侧撰写 Markdown 草稿；也可用手动新增、面经解析或 AI 模拟题填充题库。"
-            />
+            <div className="m-4 flex flex-1 flex-col rounded-2xl border-0 bg-slate-50/50 p-4">
+              <div className="mb-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={aiMockLoading}
+                  onClick={() => void runAiMockThree()}
+                  className="inline-flex items-center gap-2 rounded-lg bg-indigo-500/90 px-3 py-2 text-[12px] font-semibold text-white shadow-sm transition-colors hover:bg-indigo-500 disabled:opacity-50"
+                  aria-busy={aiMockLoading}
+                >
+                  {aiMockLoading ? (
+                    <Loader2 className="size-[14px] animate-spin text-white/90" strokeWidth={1.5} aria-hidden />
+                  ) : (
+                    <Sparkles className="size-[14px] text-white/90" strokeWidth={1.5} aria-hidden />
+                  )}
+                  {aiMockLoading
+                    ? willUseFaceExpDivergent
+                      ? '面经发散生成中…'
+                      : '生成中…'
+                    : '开始模拟（3 题）'}
+                </button>
+              </div>
+              {!aiMockLoading && willUseFaceExpDivergent ? (
+                <p className="mb-3 text-[10px] leading-relaxed text-slate-500">
+                  已检测到「面经 / 手录」题目，本次点击将启用面经发散模式。
+                </p>
+              ) : null}
+              <EmptyState
+                className="m-0 flex-1 border-0 bg-transparent"
+                title="选题开始备战"
+                description="当前题库为空。你可以直接点击上方「开始模拟（3 题）」，AI 将根据岗位 JD 与简历生成题目；也可先手动新增或导入面经后再发散生成。"
+              />
+            </div>
           )}
           </main>
 
@@ -1109,7 +1136,7 @@ export function InterviewWorkspacePage() {
               defaultValue=""
               rows={12}
               className="mt-2 min-h-[200px] w-full resize-y rounded-lg border border-slate-200/90 px-2.5 py-2 font-mono text-[11px] leading-relaxed text-slate-800"
-              placeholder="粘贴面经原文…"
+              placeholder="（可选）在此输入真实面经题目或面经原文，AI 将结合这些题目进行发散提问；若不填写，AI 将直接根据简历和岗位进行模拟。"
             />
             <div className="mt-4 flex justify-end gap-2">
               <button

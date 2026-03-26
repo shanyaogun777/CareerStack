@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { ImagePlus, Trash2 } from 'lucide-react'
+import { ImagePlus, Plus, Trash2 } from 'lucide-react'
 import { cn } from '../../lib/cn'
 import { EditablePlain } from './EditablePlain'
 
@@ -55,8 +55,12 @@ export function ResumeBasicsSection({ basics, patchBasics }) {
   const showAvatar = Boolean(blob)
   const showName = filled(basics.name)
   const showTitle = filled(basics.title)
+  const customFields = useMemo(
+    () => (Array.isArray(basics.customFields) ? basics.customFields : []),
+    [basics.customFields],
+  )
 
-  const lines = useMemo(
+  const presetLines = useMemo(
     () =>
       [
         basics.showPhone !== false && filled(basics.phone)
@@ -110,6 +114,35 @@ export function ResumeBasicsSection({ basics, patchBasics }) {
       ].filter(Boolean),
     [basics],
   )
+  const customLines = useMemo(
+    () =>
+      customFields
+        .filter((f) => filled(f?.label) && filled(f?.value))
+        .map((f) => ({
+          key: `custom:${f.id}`,
+          label: String(f.label).trim(),
+          value: String(f.value).trim(),
+        })),
+    [customFields],
+  )
+  const lines = useMemo(() => [...presetLines, ...customLines], [presetLines, customLines])
+
+  const patchCustomField = (id, patch) => {
+    patchBasics({
+      customFields: customFields.map((f) => (f.id === id ? { ...f, ...patch } : f)),
+    })
+  }
+  const removeCustomField = (id) => {
+    patchBasics({ customFields: customFields.filter((f) => f.id !== id) })
+  }
+  const addCustomField = () => {
+    patchBasics({
+      customFields: [
+        ...customFields,
+        { id: crypto.randomUUID(), label: '', value: '' },
+      ],
+    })
+  }
 
   const inputCls =
     'w-full rounded-lg border border-slate-200/90 bg-white px-2 py-1.5 text-[11px] text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-100'
@@ -371,6 +404,58 @@ export function ResumeBasicsSection({ basics, patchBasics }) {
                 }
               />
             </div>
+          </div>
+
+          <div className="space-y-2 rounded-lg border border-slate-100 bg-white p-2.5 sm:col-span-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-[10px] font-semibold text-slate-700">自定义信息项</div>
+              <button
+                type="button"
+                onClick={addCustomField}
+                className="inline-flex items-center gap-1 rounded-lg border border-slate-200/90 bg-white px-2 py-1 text-[10px] font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90"
+              >
+                <Plus className="size-[12px] text-slate-400" strokeWidth={1.5} aria-hidden />
+                添加自定义项
+              </button>
+            </div>
+            {customFields.length === 0 ? (
+              <p className="text-[10px] text-slate-400">
+                可添加 GitHub、个人网站、作品集、政治面貌等扩展信息。
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {customFields.map((f) => (
+                  <div
+                    key={f.id}
+                    className="grid gap-2 rounded-lg border border-slate-100 bg-slate-50/45 p-2 sm:grid-cols-[140px_1fr_auto]"
+                  >
+                    <input
+                      className={inputCls}
+                      placeholder="标签名（如：GitHub）"
+                      value={f.label}
+                      onChange={(e) =>
+                        patchCustomField(f.id, { label: e.target.value })
+                      }
+                    />
+                    <input
+                      className={inputCls}
+                      placeholder="内容（如：github.com/xxx）"
+                      value={f.value}
+                      onChange={(e) =>
+                        patchCustomField(f.id, { value: e.target.value })
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeCustomField(f.id)}
+                      className="inline-flex items-center justify-center rounded-lg border border-red-100/90 bg-white px-2 py-1 text-[10px] font-medium text-red-500/90 transition-colors hover:bg-red-50/80"
+                    >
+                      删除
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

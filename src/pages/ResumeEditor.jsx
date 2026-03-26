@@ -41,6 +41,17 @@ function parseBlockPointer(id) {
 }
 
 /**
+ * @param {import('@dnd-kit/core').UniqueIdentifier} id
+ * @returns {string | null}
+ */
+function parseLayoutPointer(id) {
+  const s = String(id)
+  if (!s.startsWith('layout:')) return null
+  const key = s.slice('layout:'.length)
+  return key ? key : null
+}
+
+/**
  * @param {string} overId
  * @returns {ResumeBlockSectionKey | null}
  */
@@ -450,6 +461,10 @@ export function ResumeEditor() {
   const handleDragStart = useCallback(
     (event) => {
       const sid = String(event.active.id)
+      if (sid.startsWith('layout:')) {
+        setOverlay(null)
+        return
+      }
       if (sid.startsWith('palette-')) {
         const expId = Number(sid.replace('palette-', ''))
         const exp = experiences.find((e) => e.id === expId)
@@ -486,6 +501,19 @@ export function ResumeEditor() {
 
       const activeId = String(active.id)
       const overId = String(over.id)
+
+      if (active.data.current?.kind === 'layout') {
+        const activeLayout = parseLayoutPointer(activeId)
+        const overLayout = parseLayoutPointer(overId)
+        if (!activeLayout || !overLayout || activeLayout === overLayout) return
+        setLayout((prev) => {
+          const oldIndex = prev.indexOf(activeLayout)
+          const newIndex = prev.indexOf(overLayout)
+          if (oldIndex < 0 || newIndex < 0) return prev
+          return arrayMove(prev, oldIndex, newIndex)
+        })
+        return
+      }
 
       if (active.data.current?.kind === 'palette') {
         const expId = active.data.current.experienceId
