@@ -146,7 +146,7 @@ import Dexie from 'dexie'
  */
 
 /**
- * @typedef {'AI_MOCK' | 'USER_COLLECTED'} InterviewQuestionSourceType
+ * @typedef {'AI_MOCK' | 'USER_COLLECTED' | 'AI_FACE_DIVERGENT'} InterviewQuestionSourceType
  */
 
 /**
@@ -154,17 +154,32 @@ import Dexie from 'dexie'
  */
 
 /**
+ * 题库备战维度（与 AI 返回的题型 `category`：基础能力/项目深挖/行为面试 并存）。
+ * @typedef {'通用' | '业务' | '技术' | '行为'} InterviewPrepDimension
+ */
+
+/**
  * @typedef {Object} InterviewQuestionItem
  * @property {string} id
- * @property {'基础能力' | '项目深挖' | '行为面试'} category
+ * @property {'基础能力' | '项目深挖' | '行为面试'} category - AI / 面经解析使用的题型标签
+ * @property {InterviewPrepDimension} [prepDimension] - 用户备战分类；缺省时由旧 `category` 推导
  * @property {string} question - 兼容旧数据；展示优先使用 `content`
  * @property {string} answerHint - AI 生成的参考思路
- * @property {InterviewQuestionSourceType} [type] - AI 生成 / 用户采集（缺省视为 AI_MOCK）
+ * @property {InterviewQuestionSourceType} [type] - AI 生成 / 面经发散生成 / 用户采集（缺省视为 AI_MOCK）
  * @property {string} [sourceUrl] - 面经原帖链接
  * @property {string} [content] - 问题描述（与 question 同步时可只填其一）
  * @property {string} [answerDraft] - 用户准备的答案草稿
  * @property {number} [difficulty] - 难度 1–5
  * @property {InterviewPrepStatus} [prepStatus] - 已准备 / 待练习
+ */
+
+/**
+ * 各面试阶段已纳入备战的题目 id 列表（顺序即展示顺序）。
+ * @typedef {Object} InterviewStageBuckets
+ * @property {string[]} round1
+ * @property {string[]} round2
+ * @property {string[]} hr
+ * @property {string[]} custom
  */
 
 /**
@@ -178,6 +193,7 @@ import Dexie from 'dexie'
  * @property {JobStatus} [status]
  * @property {InterviewQuestionItem[] | null} [interviewQuestions]
  * @property {string | null} [interviewQuestionsHash] - 生成面试题时的 JD 指纹，用于缓存失效
+ * @property {InterviewStageBuckets | null} [interviewStageBuckets] - 按轮次归流的题目 id
  * @property {MatchAnalysisCache | null} [matchAnalysis]
  * @property {number | null} [appliedResumeId] - 投递时使用的简历 id
  * @property {number | null} [nextInterviewAt] - 下一场面试日期（本地日 0 点的 UTC 时间戳，ms）
@@ -611,6 +627,60 @@ export function hashStructuredJD(s) {
   }
 }
 
+/** @type {import('./db.js').InterviewPrepDimension[]} */
+export const INTERVIEW_PREP_DIMENSIONS = ['通用', '业务', '技术', '行为']
+
+/**
+ * 由旧版题型标签推导默认备战维度（无 `prepDimension` 的旧数据）。
+ * @param {'基础能力' | '项目深挖' | '行为面试'} legacyCategory
+ * @returns {import('./db.js').InterviewPrepDimension}
+ */
+export function defaultPrepDimensionFromLegacyCategory(legacyCategory) {
+  if (legacyCategory === '行为面试') return '行为'
+  if (legacyCategory === '项目深挖') return '技术'
+  return '通用'
+}
+
+/**
+ * @param {unknown} raw
+ * @returns {import('./db.js').InterviewStageBuckets}
+ */
+export function normalizeInterviewStageBuckets(raw) {
+  /** @type {import('./db.js').InterviewStageBuckets} */
+  const base = { round1: [], round2: [], hr: [], custom: [] }
+  if (!raw || typeof raw !== 'object') return base
+  const o = /** @type {Record<string, unknown>} */ (raw)
+  for (const key of /** @type {const} */ (['round1', 'round2', 'hr', 'custom'])) {
+    const arr = o[key]
+    if (Array.isArray(arr)) {
+      base[key] = arr
+        .map((id) => String(id ?? '').trim())
+        .filter(Boolean)
+    }
+  }
+  return base
+}
+
+/**
+ * 归一化面试题与阶段归流，并剔除已删除题目在 buckets 中的残留 id。
+ * @param {import('./db.js').Job | null | undefined} job
+ * @returns {import('./db.js').Job | null | undefined}
+ */
+export function enrichJobForInterviewWorkspace(job) {
+  if (job == null) return job
+  const questions = normalizeInterviewQuestions(job.interviewQuestions) ?? []
+  const idSet = new Set(questions.map((q) => q.id))
+  const buckets = normalizeInterviewStageBuckets(job.interviewStageBuckets)
+  /** @type {import('./db.js').InterviewStageBuckets} */
+  const pruned = {
+    round1: buckets.round1.filter((id) => idSet.has(id)),
+    round2: buckets.round2.filter((id) => idSet.has(id)),
+    hr: buckets.hr.filter((id) => idSet.has(id)),
+    custom: buckets.custom.filter((id) => idSet.has(id)),
+  }
+  return { ...job, interviewQuestions: questions, interviewStageBuckets: pruned }
+}
+
 /**
  * @param {unknown} raw
  * @returns {import('./db.js').InterviewQuestionItem[] | null}
@@ -628,11 +698,23 @@ function normalizeInterviewQuestions(raw) {
       item && typeof item === 'object' ? item : {}
     )
     const cat = typeof o.category === 'string' && cats.includes(o.category) ? o.category : '基础能力'
+    const prepDims = /** @type {const} */ (['通用', '业务', '技术', '行为'])
+    const rawPrep = o.prepDimension
+    const prepDimension =
+      typeof rawPrep === 'string' && prepDims.includes(rawPrep)
+        ? /** @type {import('./db.js').InterviewPrepDimension} */ (rawPrep)
+        : defaultPrepDimensionFromLegacyCategory(
+            /** @type {'基础能力'|'项目深挖'|'行为面试'} */ (cat),
+          )
     const question = String(o.question ?? '')
     const contentRaw = String(o.content ?? '').trim()
     const content = contentRaw || question
     const type =
-      o.type === 'USER_COLLECTED' ? 'USER_COLLECTED' : 'AI_MOCK'
+      o.type === 'USER_COLLECTED'
+        ? 'USER_COLLECTED'
+        : o.type === 'AI_FACE_DIVERGENT'
+          ? 'AI_FACE_DIVERGENT'
+          : 'AI_MOCK'
     const prepStatus =
       o.prepStatus === 'prepared' || o.prepStatus === 'pending'
         ? o.prepStatus
@@ -643,9 +725,10 @@ function normalizeInterviewQuestions(raw) {
     return {
       id: typeof o.id === 'string' && o.id ? o.id : `iq-${i}-${Date.now()}`,
       category: /** @type {'基础能力'|'项目深挖'|'行为面试'} */ (cat),
+      prepDimension,
       question: content,
       answerHint: String(o.answerHint ?? ''),
-      type: /** @type {'AI_MOCK'|'USER_COLLECTED'} */ (type),
+      type: /** @type {'AI_MOCK'|'USER_COLLECTED'|'AI_FACE_DIVERGENT'} */ (type),
       sourceUrl: String(o.sourceUrl ?? '').trim(),
       content,
       answerDraft: String(o.answerDraft ?? ''),
@@ -715,6 +798,7 @@ function normalizeJobPayload(payload) {
       payload.interviewQuestionsHash == null || payload.interviewQuestionsHash === ''
         ? null
         : String(payload.interviewQuestionsHash),
+    interviewStageBuckets: normalizeInterviewStageBuckets(payload.interviewStageBuckets),
     matchAnalysis: normalizeMatchAnalysis(payload.matchAnalysis),
     appliedResumeId,
     nextInterviewAt,
@@ -822,6 +906,7 @@ export const jobRepository = {
       ...row,
       interviewQuestions: row.interviewQuestions ?? null,
       interviewQuestionsHash: row.interviewQuestionsHash ?? null,
+      interviewStageBuckets: row.interviewStageBuckets,
       matchAnalysis: row.matchAnalysis ?? null,
       appliedResumeId: row.appliedResumeId ?? null,
       nextInterviewAt: row.nextInterviewAt ?? null,
@@ -847,6 +932,11 @@ export const jobRepository = {
     }
     if (Object.prototype.hasOwnProperty.call(patch, 'interviewQuestions')) {
       next.interviewQuestions = normalizeInterviewQuestions(patch.interviewQuestions)
+    }
+    if (Object.prototype.hasOwnProperty.call(patch, 'interviewStageBuckets')) {
+      next.interviewStageBuckets = normalizeInterviewStageBuckets(
+        patch.interviewStageBuckets,
+      )
     }
     if (Object.prototype.hasOwnProperty.call(patch, 'matchAnalysis')) {
       next.matchAnalysis = normalizeMatchAnalysis(patch.matchAnalysis)

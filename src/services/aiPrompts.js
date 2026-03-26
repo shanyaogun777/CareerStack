@@ -5,7 +5,7 @@
 
 const LS_KEY = 'careerstack_ai_prompts_v1'
 
-/** @typedef {'jdParse'|'jobMatch'|'interviewQuestions'|'extractInterview'|'resumePolish'|'threeQuestions'|'interviewAnswerPolish'|'interviewCustom'} AiPromptId */
+/** @typedef {'jdParse'|'jobMatch'|'interviewQuestions'|'extractInterview'|'resumePolish'|'threeQuestions'|'threeQuestionsDivergent'|'interviewAnswerPolish'|'interviewCustom'} AiPromptId */
 
 /** @type {Record<AiPromptId, string>} */
 export const AI_PROMPT_DEFAULTS = {
@@ -61,6 +61,17 @@ export const AI_PROMPT_DEFAULTS = {
 - "answerHint": 要点式参考思路（非背诵稿）
 三道题须角度不同，并紧扣 JD 与用户经历中的可验证细节。`,
 
+  threeQuestionsDivergent: `你是一名资深面试官，当前处于「面经驱动的发散模拟」模式。用户消息第一节列出了其收集的真实面经问题或手写真题，第二节为当前面试轮次的考察侧重，第三、四节分别为目标岗位 JD 与候选人简历/项目摘要。
+
+你必须遵守：
+1. 禁止复读：不得将第一节中的问题原句或仅做同义替换后再次作为你的题目输出。
+2. 关联发散：以第一节中的考点、技术栈或情境为「坐标」，与第四节中具体项目、职责或成果做交叉——例如面经涉及某技术 A，而简历项目 B 使用了相关或替代方案，则应追问在 B 中如何落地 A、如何权衡取舍、如何排查问题等。
+3. 深度钻取：对第一节涉及的原理或概念，追问到可检验候选人真实理解的层次；可结合其简历场景问瓶颈、优化、指标或失败复盘。
+4. 场景模拟：在合适时将理论型面经考点改写为贴合目标岗位业务或 JD 职责的 case 题。
+5. 阶段一致：提问语气与深度须符合第二节轮次侧重（如 HR 面避免纯技术深挖，一面避免空泛战略套话）。
+
+输出结构由紧随其后的「输出格式要求」块约束；除 JSON 数组外不要输出任何其他文字。`,
+
   interviewAnswerPolish: `你是面试教练。根据目标岗位 JD，将用户的面试回答草稿用 STAR（情境、任务、行动、结果）扩写润色。
 要求：
 1. 保留 Markdown 语法（标题、列表、加粗等）；不要 HTML。
@@ -84,6 +95,7 @@ export const AI_PROMPT_LABELS = {
   extractInterview: '面经问题抽取',
   resumePolish: '简历经历 STAR 润色',
   threeQuestions: '模拟面试（3 道针对性题）',
+  threeQuestionsDivergent: '面经发散模拟（系统提示，配合 USER_COLLECTED 真题）',
   interviewAnswerPolish: '面试回答 STAR 润色',
   interviewCustom: '专项面试 · 自定义阶段（系统提示主体）',
 }

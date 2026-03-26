@@ -23,6 +23,16 @@ export const INTERVIEW_OUTPUT_CONTRACT = `【输出格式要求】
 - "answerHint": 要点式参考思路（非背诵稿）
 三道题须角度有区分，且严格贴合下方用户消息中的岗位 JD 与个人简历摘要。`
 
+/** 面经发散模式下的输出约定（强调交叉 JD/简历，禁止复述第一节原题）。 */
+export const INTERVIEW_OUTPUT_CONTRACT_DIVERGENT = `【输出格式要求】
+只输出 JSON 数组，不要 markdown 代码围栏，不要任何其他说明文字。
+数组长度必须为 3。每项对象键名必须一致：
+- "category": 只能是 "基础能力"、"项目深挖"、"行为面试" 之一
+- "question": 面试问题全文
+- "answerHint": 要点式参考思路（非背诵稿）
+三道题须角度有区分；每一问都必须显式融入用户消息第三节 JD 或第四节简历/项目中的具体信息（公司、项目名、技术栈、指标、场景等至少一处可核对细节），不得空泛套话。
+严禁将第一节中的面经原句或仅替换个别同义词后再次作为题目输出；须在考点上做深度钻取、交叉追问或场景变形。`
+
 const ROUND1_FOCUS = `【当前轮次：一面】
 你是技术/业务一面面试官。提问侧重：
 1. 简历与项目细节核实：时间线、职责边界、个人贡献、数据口径。
@@ -73,5 +83,28 @@ export function getInterviewStageSystemPrompt(stageId) {
     }
     default:
       return getInterviewStageSystemPrompt('round1')
+  }
+}
+
+/**
+ * 供「面经发散」模式的 user 消息第二节：仅阶段侧重正文，不含 JSON 输出约定。
+ * @param {InterviewStageId} stageId
+ * @param {string} [customDraft] - custom 阶段时工作台正在编辑的文案
+ * @returns {string}
+ */
+export function getInterviewStageFocusForUserContext(stageId, customDraft) {
+  const draft =
+    typeof customDraft === 'string' ? customDraft.trim() : ''
+  switch (stageId) {
+    case 'round1':
+      return ROUND1_FOCUS
+    case 'round2':
+      return ROUND2_FOCUS
+    case 'hr':
+      return HR_FOCUS
+    case 'custom':
+      return draft || getEffectivePrompt('interviewCustom').trim()
+    default:
+      return ROUND1_FOCUS
   }
 }

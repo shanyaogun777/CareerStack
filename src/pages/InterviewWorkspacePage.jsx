@@ -6,14 +6,35 @@ import {
   useRef,
   useState,
 } from 'react'
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { appPath } from '../lib/appPaths'
-import { ArrowLeft, Loader2, Plus, Sparkles, Trash2, Wand2 } from 'lucide-react'
-import { Group, Panel, Separator } from 'react-resizable-panels'
 import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  GripVertical,
+  Loader2,
+  Plus,
+  Sparkles,
+  Trash2,
+  Wand2,
+} from 'lucide-react'
+import {
+  INTERVIEW_PREP_DIMENSIONS,
+  enrichJobForInterviewWorkspace,
   experienceRepository,
   hashStructuredJD,
   jobRepository,
+  normalizeInterviewStageBuckets,
 } from '../services/db'
 import {
   extractInterviewQuestionsFromPost,
@@ -34,6 +55,10 @@ import {
   getLastInterviewStage,
   setLastInterviewStage,
 } from '../services/interviewStagePersistence.js'
+import {
+  loadInterviewWorkspacePanels,
+  saveInterviewWorkspacePanels,
+} from '../services/interviewWorkspacePanels.js'
 import { MarkdownPreview } from '../components/experiences/MarkdownPreview'
 import { EmptyState } from '../components/ui/EmptyState'
 import { cn } from '../lib/cn'
@@ -44,6 +69,24 @@ import { MAIN_CONTENT_OVERLAY_BOX } from '../lib/overlayLayout.js'
  */
 function questionTitle(q) {
   return (q.content || q.question || '').trim() || '（未命名问题）'
+}
+
+/**
+ * @param {import('../services/db.js').InterviewPrepDimension} d
+ */
+function prepDimensionBadgeClass(d) {
+  switch (d) {
+    case '通用':
+      return 'bg-slate-100/95 text-slate-700 ring-1 ring-slate-200/80'
+    case '业务':
+      return 'bg-amber-50/95 text-amber-900/80 ring-1 ring-amber-100/90'
+    case '技术':
+      return 'bg-indigo-50/95 text-indigo-900/80 ring-1 ring-indigo-100/90'
+    case '行为':
+      return 'bg-rose-50/95 text-rose-900/80 ring-1 ring-rose-100/90'
+    default:
+      return 'bg-slate-100/95 text-slate-700 ring-1 ring-slate-200/80'
+  }
 }
 
 export function InterviewWorkspacePage() {
@@ -69,6 +112,9 @@ export function InterviewWorkspacePage() {
   const [manualCat, setManualCat] = useState(
     /** @type {'基础能力' | '项目深挖' | '行为面试'} */ ('基础能力'),
   )
+  const [manualPrepDim, setManualPrepDim] = useState(
+    /** @type {import('../services/db.js').InterviewPrepDimension} */ ('通用'),
+  )
 
   const [parseOpen, setParseOpen] = useState(false)
   const parseRef = useRef(/** @type {HTMLTextAreaElement | null} */ (null))
@@ -79,12 +125,19 @@ export function InterviewWorkspacePage() {
   const [customPromptDraft, setCustomPromptDraft] = useState('')
   const [customPromptSavedHint, setCustomPromptSavedHint] = useState('')
 
+  /** @type {'all' | import('../services/db.js').InterviewPrepDimension} */
+  const [prepFilter, setPrepFilter] = useState('all')
+  const [panels, setPanels] = useState(() => loadInterviewWorkspacePanels())
+  const [activeDragQ, setActiveDragQ] = useState(
+    /** @type {import('../services/db.js').InterviewQuestionItem | null} */ (null),
+  )
+
   const persistTimer = useRef(/** @type {ReturnType<typeof setTimeout> | null} */ (null))
 
   const refreshJob = useCallback(async () => {
     if (invalidId) return
     const row = await jobRepository.getById(idNum)
-    setJob(row ?? null)
+    setJob(row ? enrichJobForInterviewWorkspace(row) : null)
   }, [idNum, invalidId])
 
   useEffect(() => {
@@ -97,7 +150,7 @@ export function InterviewWorkspacePage() {
           experienceRepository.getAll(),
         ])
         if (cancelled) return
-        setJob(j ?? null)
+        setJob(j ? enrichJobForInterviewWorkspace(j) : null)
         setExperiences(ex)
         setLoadError('')
       } catch (e) {
@@ -127,12 +180,71 @@ export function InterviewWorkspacePage() {
   )
 
   const aiList = useMemo(
-    () => questions.filter((q) => !q.type || q.type === 'AI_MOCK'),
+    () =>
+      questions.filter(
+        (q) =>
+          !q.type ||
+          q.type === 'AI_MOCK' ||
+          q.type === 'AI_FACE_DIVERGENT',
+      ),
     [questions],
   )
   const collectedList = useMemo(
     () => questions.filter((q) => q.type === 'USER_COLLECTED'),
     [questions],
+  )
+
+  const faceExpReference = useMemo(
+    () =>
+      collectedList
+        .map((q) => (q.content || q.question || '').trim())
+        .filter(Boolean)
+        .join('\n---\n')
+        .slice(0, 14_000),
+    [collectedList],
+  )
+
+  const willUseFaceExpDivergent = faceExpReference.trim().length > 0
+
+  const passesPrepFilter = useCallback(
+    /** @param {import('../services/db.js').InterviewQuestionItem} q */
+    (q) => {
+      if (prepFilter === 'all') return true
+      return (q.prepDimension ?? '通用') === prepFilter
+    },
+    [prepFilter],
+  )
+
+  const aiListFiltered = useMemo(
+    () => aiList.filter(passesPrepFilter),
+    [aiList, passesPrepFilter],
+  )
+  const collectedListFiltered = useMemo(
+    () => collectedList.filter(passesPrepFilter),
+    [collectedList, passesPrepFilter],
+  )
+
+  const stageBucketIds = useMemo(() => {
+    if (!job?.interviewStageBuckets) return []
+    const b = normalizeInterviewStageBuckets(job.interviewStageBuckets)
+    return b[interviewStage] ?? []
+  }, [job?.interviewStageBuckets, interviewStage])
+
+  const stageBucketQuestions = useMemo(
+    () =>
+      stageBucketIds
+        .map((id) => questions.find((q) => q.id === id))
+        .filter(
+          /** @returns {q is import('../services/db.js').InterviewQuestionItem} */
+          (q) => Boolean(q),
+        ),
+    [stageBucketIds, questions],
+  )
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
   )
 
   useEffect(() => {
@@ -196,12 +308,94 @@ export function InterviewWorkspacePage() {
     if (!job) return
     flushPersist()
     const list = (job.interviewQuestions || []).filter((q) => q.id !== qid)
-    setJob((prev) => (prev ? { ...prev, interviewQuestions: list } : prev))
-    await jobRepository.update(job.id, { interviewQuestions: list })
+    const buckets = normalizeInterviewStageBuckets(job.interviewStageBuckets)
+    const nextBuckets = {
+      round1: buckets.round1.filter((id) => id !== qid),
+      round2: buckets.round2.filter((id) => id !== qid),
+      hr: buckets.hr.filter((id) => id !== qid),
+      custom: buckets.custom.filter((id) => id !== qid),
+    }
+    setJob((prev) =>
+      prev
+        ? { ...prev, interviewQuestions: list, interviewStageBuckets: nextBuckets }
+        : prev,
+    )
+    await jobRepository.update(job.id, {
+      interviewQuestions: list,
+      interviewStageBuckets: nextBuckets,
+    })
     if (selectedQid === qid) {
       setSelectedQid(list[0]?.id ?? null)
     }
     await refreshJob()
+  }
+
+  const persistBuckets = useCallback(
+    async (nextBuckets) => {
+      if (!job) return
+      await jobRepository.update(job.id, { interviewStageBuckets: nextBuckets })
+      await refreshJob()
+    },
+    [job, refreshJob],
+  )
+
+  const addQuestionToCurrentStage = useCallback(
+    /** @param {string} qid */
+    async (qid) => {
+      if (!job) return
+      const buckets = normalizeInterviewStageBuckets(job.interviewStageBuckets)
+      const key = interviewStage
+      const cur = [...buckets[key]]
+      if (cur.includes(qid)) return
+      const next = { ...buckets, [key]: [...cur, qid] }
+      await persistBuckets(next)
+    },
+    [job, interviewStage, persistBuckets],
+  )
+
+  const removeQuestionFromCurrentStage = useCallback(
+    /** @param {string} qid */
+    async (qid) => {
+      if (!job) return
+      const buckets = normalizeInterviewStageBuckets(job.interviewStageBuckets)
+      const key = interviewStage
+      const next = { ...buckets, [key]: buckets[key].filter((id) => id !== qid) }
+      await persistBuckets(next)
+    },
+    [job, interviewStage, persistBuckets],
+  )
+
+  const handleDragEnd = useCallback(
+    /** @param {import('@dnd-kit/core').DragEndEvent} event */
+    async (event) => {
+      const { active, over } = event
+      setActiveDragQ(null)
+      if (!over || !job) return
+      if (String(over.id) !== `stage-drop-${interviewStage}`) return
+      const qid =
+        active.data.current && typeof active.data.current.qid === 'string'
+          ? active.data.current.qid
+          : String(active.id).replace(/^nav-q-/, '')
+      if (!qid) return
+      await addQuestionToCurrentStage(qid)
+    },
+    [job, interviewStage, addQuestionToCurrentStage],
+  )
+
+  const toggleNavPanel = () => {
+    setPanels((p) => {
+      const n = { ...p, navOpen: !p.navOpen }
+      saveInterviewWorkspacePanels(n)
+      return n
+    })
+  }
+
+  const toggleStagePanel = () => {
+    setPanels((p) => {
+      const n = { ...p, stageOpen: !p.stageOpen }
+      saveInterviewWorkspacePanels(n)
+      return n
+    })
   }
 
   const handleInterviewStageChange = useCallback(
@@ -238,7 +432,12 @@ export function InterviewWorkspacePage() {
       const items = await generateThreeTargetedInterviewQuestions(
         job.structuredJD,
         experiences,
-        { systemPrompt },
+        {
+          systemPrompt,
+          faceExpReference,
+          interviewStage,
+          customStageDraft: customPromptDraft,
+        },
       )
       const next = [...(job.interviewQuestions || []), ...items]
       await jobRepository.update(job.id, {
@@ -316,6 +515,7 @@ export function InterviewWorkspacePage() {
     const item = {
       id: `uc-${Date.now()}`,
       category: manualCat,
+      prepDimension: manualPrepDim,
       question: text,
       content: text,
       answerHint: '',
@@ -332,6 +532,7 @@ export function InterviewWorkspacePage() {
     setManualContent('')
     setManualSource('')
     setManualCat('基础能力')
+    setManualPrepDim('通用')
     setSelectedQid(item.id)
   }
 
@@ -453,70 +654,117 @@ export function InterviewWorkspacePage() {
         </div>
       ) : null}
 
-      <Group
-        orientation="horizontal"
-        className="flex min-h-[min(72vh,720px)] flex-1 gap-0"
+      <DndContext
+        sensors={sensors}
+        onDragStart={(e) => {
+          const raw = String(e.active.id).replace(/^nav-q-/, '')
+          const q = questions.find((x) => x.id === raw)
+          setActiveDragQ(q ?? null)
+        }}
+        onDragEnd={(e) => void handleDragEnd(e)}
+        onDragCancel={() => setActiveDragQ(null)}
       >
-        <Panel
-          id="interview-nav"
-          defaultSize={28}
-          minSize={16}
-          className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
-        >
-          <div className="border-b border-slate-100 px-3.5 py-2.5">
-            <h2 className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
-              题库导航
-            </h2>
-          </div>
-          <div className="min-h-0 flex-1 overflow-y-auto p-2">
-            <NavSection
-              title="AI 模拟题"
-              emptyHint="暂无 AI 题"
-              emptyDescription="选择上方面试阶段后，在右侧点击「开始模拟」生成本题"
+        <div className="flex min-h-[min(72vh,720px)] min-w-0 flex-1 gap-2">
+          {panels.navOpen ? (
+            <aside className="flex w-[min(30%,300px)] min-w-[200px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-2 py-2">
+                <h2 className="px-1 text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                  题库导航
+                </h2>
+                <button
+                  type="button"
+                  onClick={toggleNavPanel}
+                  className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
+                  title="收起题库导航"
+                  aria-label="收起题库导航"
+                >
+                  <ChevronLeft className="size-4" strokeWidth={1.5} />
+                </button>
+              </div>
+              <div className="border-b border-slate-100 px-2.5 py-2">
+                <label className="mb-1 block text-[9px] font-semibold uppercase tracking-wide text-slate-400">
+                  备战分类筛选
+                </label>
+                <select
+                  value={prepFilter}
+                  onChange={(e) =>
+                    setPrepFilter(
+                      /** @type {'all' | import('../services/db.js').InterviewPrepDimension} */ (
+                        e.target.value
+                      ),
+                    )
+                  }
+                  className="w-full rounded-lg border border-slate-200/90 bg-slate-50/50 px-2 py-1.5 text-[11px] text-slate-800"
+                >
+                  <option value="all">全部</option>
+                  {INTERVIEW_PREP_DIMENSIONS.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto p-2">
+                <NavSection
+                  title="AI 模拟题"
+                  emptyHint="暂无 AI 题"
+                  emptyDescription="选择上方面试阶段后，在右侧点击「开始模拟」生成本题"
+                >
+                  {aiListFiltered.map((q) => (
+                    <DraggableNavShell key={q.id} qid={q.id}>
+                      <NavItem
+                        active={selectedQid === q.id}
+                        onClick={() => setSelectedQid(q.id)}
+                        onRemove={() => void removeQuestion(q.id)}
+                        badgeClass={
+                          q.type === 'AI_FACE_DIVERGENT'
+                            ? 'bg-teal-50/95 text-teal-900/80 ring-1 ring-teal-100/90'
+                            : 'bg-indigo-50/90 text-indigo-800/75'
+                        }
+                        badge={
+                          q.type === 'AI_FACE_DIVERGENT' ? '基于面经发散' : 'AI'
+                        }
+                        label={questionTitle(q)}
+                        prepDimension={q.prepDimension ?? '通用'}
+                      />
+                    </DraggableNavShell>
+                  ))}
+                </NavSection>
+                <NavSection
+                  title="面经 / 手录"
+                  emptyHint="暂无采集题"
+                  emptyDescription="使用「面经深度解析」从帖文提取，或手动新增"
+                  className="mt-3"
+                >
+                  {collectedListFiltered.map((q) => (
+                    <DraggableNavShell key={q.id} qid={q.id}>
+                      <NavItem
+                        active={selectedQid === q.id}
+                        onClick={() => setSelectedQid(q.id)}
+                        onRemove={() => void removeQuestion(q.id)}
+                        badgeClass="bg-slate-100/90 text-slate-600"
+                        badge="采集"
+                        label={questionTitle(q)}
+                        prepDimension={q.prepDimension ?? '通用'}
+                      />
+                    </DraggableNavShell>
+                  ))}
+                </NavSection>
+              </div>
+            </aside>
+          ) : (
+            <button
+              type="button"
+              onClick={toggleNavPanel}
+              className="flex w-9 shrink-0 flex-col items-center justify-center rounded-xl border border-slate-100 bg-white py-2 text-slate-500 shadow-sm transition-colors hover:border-indigo-100 hover:bg-indigo-50/30 hover:text-indigo-700"
+              title="展开题库导航"
+              aria-label="展开题库导航"
             >
-              {aiList.map((q) => (
-                <NavItem
-                  key={q.id}
-                  active={selectedQid === q.id}
-                  onClick={() => setSelectedQid(q.id)}
-                  onRemove={() => void removeQuestion(q.id)}
-                  badgeClass="bg-indigo-50/90 text-indigo-800/75"
-                  badge="AI"
-                  label={questionTitle(q)}
-                />
-              ))}
-            </NavSection>
-            <NavSection
-              title="面经 / 手录"
-              emptyHint="暂无采集题"
-              emptyDescription="使用「面经深度解析」从帖文提取，或手动新增"
-              className="mt-3"
-            >
-              {collectedList.map((q) => (
-                <NavItem
-                  key={q.id}
-                  active={selectedQid === q.id}
-                  onClick={() => setSelectedQid(q.id)}
-                  onRemove={() => void removeQuestion(q.id)}
-                  badgeClass="bg-slate-100/90 text-slate-600"
-                  badge="采集"
-                  label={questionTitle(q)}
-                />
-              ))}
-            </NavSection>
-          </div>
-        </Panel>
+              <ChevronRight className="size-4" strokeWidth={1.5} />
+            </button>
+          )}
 
-        <Separator className="group flex w-3 max-w-[12px] shrink-0 items-center justify-center bg-transparent focus:outline-none data-[separator]:cursor-col-resize">
-          <div className="flex h-16 w-1.5 items-center justify-center rounded-full bg-slate-200/80 transition-colors group-hover:bg-indigo-200/60" />
-        </Separator>
-
-        <Panel
-          id="interview-editor"
-          minSize={45}
-          defaultSize={72}
-          className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
-        >
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
           {selected ? (
             <div className="flex min-h-0 flex-1 flex-col">
               <div className="shrink-0 border-b border-slate-100 px-5 py-4">
@@ -534,19 +782,57 @@ export function InterviewWorkspacePage() {
                   }
                   className="w-full rounded-lg border border-slate-200/90 px-3 py-2 text-[13px] font-medium text-slate-800 focus:border-indigo-200/90 focus:outline-none focus:ring-2 focus:ring-indigo-50"
                 />
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-2">
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                    备战分类
+                  </label>
+                  <select
+                    value={selected.prepDimension ?? '通用'}
+                    onChange={(e) =>
+                      patchQuestion(selected.id, {
+                        prepDimension:
+                          /** @type {import('../services/db.js').InterviewPrepDimension} */ (
+                            e.target.value
+                          ),
+                      })
+                    }
+                    className="w-full max-w-xs rounded-lg border border-slate-200/90 bg-white px-2.5 py-1.5 text-[12px] text-slate-800"
+                  >
+                    {INTERVIEW_PREP_DIMENSIONS.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-[10px] leading-relaxed text-slate-400">
+                    用于题库导航筛选与视觉标签；与左侧「题型」标签（基础能力 / 项目深挖 / 行为面试）可独立设置。
+                  </p>
+                </div>
+                {selected.type === 'AI_FACE_DIVERGENT' ? (
+                  <p className="mb-2 rounded-lg border border-teal-100/90 bg-teal-50/45 px-2.5 py-1.5 text-[10px] leading-relaxed text-teal-900/85">
+                    本题来源：<span className="font-semibold">基于面经发散</span>
+                    。由 AI 根据您题库中的面经/手录考点结合 JD 与简历生成，非原题复述。
+                  </p>
+                ) : null}
+                <div className="mt-3 flex flex-col gap-2">
+                  <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
                     disabled={aiMockLoading}
                     onClick={() => void runAiMockThree()}
                     className="inline-flex items-center gap-2 rounded-lg bg-indigo-500/90 px-3 py-2 text-[12px] font-semibold text-white shadow-sm transition-colors hover:bg-indigo-500 disabled:opacity-50"
+                    aria-busy={aiMockLoading}
                   >
                     {aiMockLoading ? (
                       <Loader2 className="size-[14px] animate-spin text-white/90" strokeWidth={1.5} aria-hidden />
                     ) : (
                       <Sparkles className="size-[14px] text-white/90" strokeWidth={1.5} aria-hidden />
                     )}
-                    开始模拟（3 题）
+                    {aiMockLoading
+                      ? willUseFaceExpDivergent
+                        ? '面经发散生成中…'
+                        : '生成中…'
+                      : '开始模拟（3 题）'}
                   </button>
                   <button
                     type="button"
@@ -561,6 +847,17 @@ export function InterviewWorkspacePage() {
                     )}
                     AI 优化回答（STAR）
                   </button>
+                  </div>
+                  {aiMockLoading && willUseFaceExpDivergent ? (
+                    <p className="text-[10px] leading-relaxed text-slate-500" role="status">
+                      正在根据面经考点、当前面试阶段侧重、岗位 JD 与简历经历进行交叉发散，请稍候。
+                    </p>
+                  ) : null}
+                  {!aiMockLoading && willUseFaceExpDivergent ? (
+                    <p className="text-[10px] leading-relaxed text-slate-500">
+                      已检测到「面经 / 手录」题目，本次「开始模拟」将启用面经发散模式；请随时编辑左侧手录题，下次点击即可带上最新内容。
+                    </p>
+                  ) : null}
                 </div>
               </div>
               <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
@@ -615,8 +912,93 @@ export function InterviewWorkspacePage() {
               description="从左侧选择题后在右侧撰写 Markdown 草稿；也可用手动新增、面经解析或 AI 模拟题填充题库。"
             />
           )}
-        </Panel>
-      </Group>
+          </main>
+
+          {panels.stageOpen ? (
+            <aside className="flex max-h-full min-h-0 w-[min(22%,220px)] min-w-[168px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+              <div className="flex items-center justify-between gap-1 border-b border-slate-100 px-2 py-2">
+                <h2 className="px-1 text-[10px] font-bold uppercase leading-tight tracking-wide text-slate-500">
+                  当前阶段题库
+                </h2>
+                <button
+                  type="button"
+                  onClick={toggleStagePanel}
+                  className="shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
+                  title="收起当前阶段题库"
+                  aria-label="收起当前阶段题库"
+                >
+                  <ChevronRight className="size-4" strokeWidth={1.5} />
+                </button>
+              </div>
+              <p className="border-b border-slate-50 px-2.5 py-1.5 text-[10px] leading-relaxed text-slate-500">
+                将左侧题目经手柄拖入下方区域，归入「
+                {INTERVIEW_STAGE_TABS.find((t) => t.id === interviewStage)?.label ?? ''}
+                」。移除仅取消归流，不删原题。
+              </p>
+              <CurrentStageDropZone stageId={interviewStage}>
+                {stageBucketQuestions.length === 0 ? (
+                  <p className="px-2 py-6 text-center text-[10px] leading-relaxed text-slate-400">
+                    拖入题目开始本阶段备战列表
+                  </p>
+                ) : (
+                  <ul className="flex flex-col gap-1.5">
+                    {stageBucketQuestions.map((q) => (
+                      <li
+                        key={q.id}
+                        className="rounded-lg border border-slate-100 bg-white px-2 py-1.5 shadow-sm"
+                      >
+                        <div className="flex items-start gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedQid(q.id)}
+                            className="min-w-0 flex-1 text-left text-[10px] font-medium leading-snug text-slate-800"
+                          >
+                            {questionTitle(q)}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void removeQuestionFromCurrentStage(q.id)}
+                            className="shrink-0 rounded p-0.5 text-slate-400 hover:bg-red-50/80 hover:text-red-500"
+                            title="移出本阶段"
+                            aria-label="移出本阶段"
+                          >
+                            <Trash2 className="size-3" strokeWidth={1.5} />
+                          </button>
+                        </div>
+                        <span
+                          className={cn(
+                            'mt-1 inline-block rounded px-1 py-0.5 text-[8px] font-bold',
+                            prepDimensionBadgeClass(q.prepDimension ?? '通用'),
+                          )}
+                        >
+                          {q.prepDimension ?? '通用'}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CurrentStageDropZone>
+            </aside>
+          ) : (
+            <button
+              type="button"
+              onClick={toggleStagePanel}
+              className="flex w-9 shrink-0 flex-col items-center justify-center rounded-xl border border-slate-100 bg-white py-2 text-slate-500 shadow-sm transition-colors hover:border-indigo-100 hover:bg-indigo-50/30 hover:text-indigo-700"
+              title="展开当前阶段题库"
+              aria-label="展开当前阶段题库"
+            >
+              <ChevronLeft className="size-4" strokeWidth={1.5} />
+            </button>
+          )}
+        </div>
+        <DragOverlay dropAnimation={null}>
+          {activeDragQ ? (
+            <div className="max-w-[240px] rounded-lg border border-indigo-100 bg-white px-3 py-2 text-[11px] font-medium text-slate-800 shadow-lg ring-1 ring-indigo-50">
+              {questionTitle(activeDragQ)}
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       {manualOpen ? (
         <div
@@ -657,6 +1039,26 @@ export function InterviewWorkspacePage() {
                 <option value="基础能力">基础能力</option>
                 <option value="项目深挖">项目深挖</option>
                 <option value="行为面试">行为面试</option>
+              </select>
+              <label className="mb-0.5 block text-[10px] font-medium text-slate-500">
+                备战分类
+              </label>
+              <select
+                value={manualPrepDim}
+                onChange={(e) =>
+                  setManualPrepDim(
+                    /** @type {import('../services/db.js').InterviewPrepDimension} */ (
+                      e.target.value
+                    ),
+                  )
+                }
+                className="w-full rounded-lg border border-slate-200/90 px-2.5 py-2 text-[12px] text-slate-800"
+              >
+                {INTERVIEW_PREP_DIMENSIONS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="mt-4 flex justify-end gap-2">
@@ -738,6 +1140,61 @@ export function InterviewWorkspacePage() {
 }
 
 /**
+ * @param {{ qid: string; children: import('react').ReactNode }} props
+ */
+function DraggableNavShell({ qid, children }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: `nav-q-${qid}`,
+    data: { qid },
+  })
+  const style = transform
+    ? { transform: `translate3d(${transform.x}px,${transform.y}px,0)` }
+    : undefined
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={cn(isDragging && 'opacity-45')}
+    >
+      <div className="flex items-start gap-0.5">
+        <button
+          type="button"
+          className="mt-1 shrink-0 rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          {...listeners}
+          {...attributes}
+          aria-label="拖到当前阶段题库"
+        >
+          <GripVertical className="size-3.5" strokeWidth={1.5} />
+        </button>
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
+    </li>
+  )
+}
+
+/**
+ * @param {{ stageId: import('../services/interviewStagePrompts.js').InterviewStageId; children: import('react').ReactNode }} props
+ */
+function CurrentStageDropZone({ stageId, children }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `stage-drop-${stageId}`,
+  })
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        'mx-2 mb-2 flex min-h-[min(28vh,200px)] flex-1 flex-col overflow-y-auto rounded-lg border border-dashed p-2 transition-colors',
+        isOver
+          ? 'border-indigo-300 bg-indigo-50/40'
+          : 'border-slate-200/80 bg-slate-50/55',
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+/**
  * @param {{
  *   title: string
  *   emptyHint: string
@@ -775,46 +1232,60 @@ function NavSection({ title, emptyHint, emptyDescription, children, className })
  *   badge: string
  *   badgeClass: string
  *   label: string
+ *   prepDimension: import('../services/db.js').InterviewPrepDimension
  * }} props
  */
-function NavItem({ active, onClick, onRemove, badge, badgeClass, label }) {
+function NavItem({
+  active,
+  onClick,
+  onRemove,
+  badge,
+  badgeClass,
+  label,
+  prepDimension,
+}) {
+  const dim = prepDimension ?? '通用'
   return (
-    <li>
-      <div
-        className={cn(
-          'group flex items-start gap-1 rounded-lg border px-2 py-1.5 text-left transition-colors',
-          active
-            ? 'border-indigo-100/90 bg-indigo-50/50'
-            : 'border-transparent hover:bg-slate-50/80',
-        )}
-      >
-        <button
-          type="button"
-          onClick={onClick}
-          className="min-w-0 flex-1 text-left"
-        >
+    <div
+      className={cn(
+        'group flex items-start gap-1 rounded-lg border px-2 py-1.5 text-left transition-colors',
+        active
+          ? 'border-indigo-100/90 bg-indigo-50/50'
+          : 'border-transparent hover:bg-slate-50/80',
+      )}
+    >
+      <button type="button" onClick={onClick} className="min-w-0 flex-1 text-left">
+        <div className="flex flex-wrap items-center gap-1">
           <span
             className={cn('inline-block rounded px-1 py-0.5 text-[9px] font-bold', badgeClass)}
           >
             {badge}
           </span>
-          <span className="mt-0.5 block line-clamp-3 text-[11px] font-medium leading-snug text-slate-800">
-            {label}
+          <span
+            className={cn(
+              'inline-block rounded px-1 py-0.5 text-[8px] font-bold',
+              prepDimensionBadgeClass(dim),
+            )}
+          >
+            {dim}
           </span>
-        </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            onRemove()
-          }}
-          className="shrink-0 rounded p-0.5 text-slate-400 opacity-0 transition-opacity hover:bg-red-50/80 hover:text-red-500/90 group-hover:opacity-100"
-          title="删除"
-          aria-label="删除"
-        >
-          <Trash2 className="size-[14px]" strokeWidth={1.5} />
-        </button>
-      </div>
-    </li>
+        </div>
+        <span className="mt-0.5 block line-clamp-3 text-[11px] font-medium leading-snug text-slate-800">
+          {label}
+        </span>
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          onRemove()
+        }}
+        className="shrink-0 rounded p-0.5 text-slate-400 opacity-0 transition-opacity hover:bg-red-50/80 hover:text-red-500/90 group-hover:opacity-100"
+        title="删除"
+        aria-label="删除"
+      >
+        <Trash2 className="size-[14px]" strokeWidth={1.5} />
+      </button>
+    </div>
   )
 }

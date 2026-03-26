@@ -11,6 +11,10 @@ const DEFAULT_MODEL = 'gpt-4o-mini'
 
 import { hashStructuredJD } from './db.js'
 import { getEffectivePrompt } from './aiPrompts.js'
+import {
+  getInterviewStageFocusForUserContext,
+  INTERVIEW_OUTPUT_CONTRACT_DIVERGENT,
+} from './interviewStagePrompts.js'
 
 /**
  * Vite 注入的环境变量（可选）。注意：以 VITE_ 开头的变量会打进前端包，仅适合团队内部构建或私有部署。
@@ -362,10 +366,17 @@ export async function extractInterviewQuestionsFromPost(
 }
 
 /**
- * 基于 JD + 简历生成 3 道模拟题（AI_MOCK），用于面试工作台。
+ * 基于 JD + 简历生成 3 道模拟题；若提供非空 `faceExpReference`（面经/手录题合并文本），
+ * 则启用面经发散模式（`AI_FACE_DIVERGENT`、temperature 约 0.7、user 消息分节拼接）。
  * @param {import('./db.js').StructuredJD | null} structuredJD
  * @param {import('./db.js').Experience[]} experiences
- * @param {{ systemPrompt?: string }} [options] - 传入 `systemPrompt` 时覆盖默认「三道题」系统提示（分阶段模拟）
+ * @param {{
+ *   systemPrompt?: string
+ *   faceExpReference?: string
+ *   interviewStage?: import('./interviewStagePrompts.js').InterviewStageId
+ *   customStageDraft?: string
+ *   temperature?: number
+ * }} [options]
  * @returns {Promise<import('./db.js').InterviewQuestionItem[]>}
  */
 export async function generateThreeTargetedInterviewQuestions(
@@ -382,17 +393,60 @@ export async function generateThreeTargetedInterviewQuestions(
     .join('\n---\n')
     .slice(0, 16_000)
 
-  const user = `【岗位 JD JSON】\n${jdText}\n\n【用户项目/经历摘要】\n${expBrief || '（无）'}`
+  const faceTrim =
+    typeof options.faceExpReference === 'string'
+      ? options.faceExpReference.trim()
+      : ''
 
-  const system =
-    typeof options.systemPrompt === 'string' && options.systemPrompt.trim()
-      ? options.systemPrompt.trim()
-      : getEffectivePrompt('threeQuestions')
+  /** @type {'AI_MOCK' | 'AI_FACE_DIVERGENT'} */
+  let outType = 'AI_MOCK'
+  let system
+  let user
+  let temperature = 0.4
+
+  if (faceTrim) {
+    outType = 'AI_FACE_DIVERGENT'
+    const stage = options.interviewStage
+    const customDraft =
+      typeof options.customStageDraft === 'string' ? options.customStageDraft : ''
+    const focus =
+      stage != null
+        ? getInterviewStageFocusForUserContext(stage, customDraft)
+        : getInterviewStageFocusForUserContext('round1', '')
+    const faceBlock = faceTrim.slice(0, 12_000)
+    system = `${getEffectivePrompt('threeQuestionsDivergent').trim()}\n\n${INTERVIEW_OUTPUT_CONTRACT_DIVERGENT}`
+    user = `【一、用户提供的面试真题 / 面经考点基准】
+以下条目仅作考点与风格锚点：禁止在输出中原句复述或仅替换个别同义词后再次作为题目；须结合后文 JD 与简历做交叉、变形或场景化追问。
+
+${faceBlock}
+
+【二、当前面试阶段与考察侧重】
+${focus}
+
+【三、岗位 JD JSON】
+${jdText}
+
+【四、用户项目/经历摘要】
+${expBrief || '（无）'}`
+    temperature =
+      typeof options.temperature === 'number' &&
+      Number.isFinite(options.temperature) &&
+      options.temperature >= 0 &&
+      options.temperature <= 2
+        ? options.temperature
+        : 0.7
+  } else {
+    user = `【岗位 JD JSON】\n${jdText}\n\n【用户项目/经历摘要】\n${expBrief || '（无）'}`
+    system =
+      typeof options.systemPrompt === 'string' && options.systemPrompt.trim()
+        ? options.systemPrompt.trim()
+        : getEffectivePrompt('threeQuestions')
+  }
 
   const text = await chatCompletionText({
     system,
     user,
-    temperature: 0.4,
+    temperature,
   })
   let parsed
   try {
@@ -421,7 +475,7 @@ export async function generateThreeTargetedInterviewQuestions(
       category: /** @type {'基础能力'|'项目深挖'|'行为面试'} */ (cat),
       question: qText,
       answerHint: String(o.answerHint ?? ''),
-      type: /** @type {'AI_MOCK'} */ ('AI_MOCK'),
+      type: /** @type {'AI_MOCK' | 'AI_FACE_DIVERGENT'} */ (outType),
       sourceUrl: '',
       content: qText,
       answerDraft: '',

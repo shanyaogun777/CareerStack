@@ -43,6 +43,12 @@
 
 - **数据迁移**：侧栏「设置」支持 **IndexedDB 全量导出 / 导入 JSON**（含附件与头像 Base64、指挥部日历待办等；备份格式 v2，兼容 v1 导入）。
 
+- **多维度题库管理体系**：面试题在保留 AI 题型标签的同时，增加 **备战分类**（通用 / 业务 / 技术 / 行为），支持筛选与色标区分；可与题型独立配置。
+
+- **分阶段可视化任务流**：在面试工作台用 **@dnd-kit** 将题目从题库导航拖入 **当前阶段题库**；关联关系以 `job.interviewStageBuckets` 持久化（按 `round1` / `round2` / `hr` / `custom` 存储题目 id 列表），侧栏支持收起/展开并写入 localStorage。
+
+- **面经驱动的交叉面试模型**：当岗位题库中存在 **面经 / 手录**（`USER_COLLECTED`）题目时，「开始模拟」会合并其当前文案与 **面试阶段侧重、JD、简历** 一并送入模型；在 `threeQuestionsDivergent` 系统提示下禁止复述原题，引导考点与简历/JD 的交叉追问与场景变形（temperature 约 0.7），生成题目标记为 `AI_FACE_DIVERGENT`（界面显示「基于面经发散」），便于应对大厂高频考点的变种提问。
+
 ---
 
 ## 技术架构（简述）
@@ -56,6 +62,8 @@
 | PWA | vite-plugin-pwa |
 | 可选云端 | Supabase Auth + `user_backups`（RLS），与本地 JSON 备份互补 |
 | AI 调用 | 浏览器直连 OpenAI 兼容 Chat Completions；提示词来自 `aiPrompts.js` 默认值 + localStorage 覆盖。**专项面试**在 `interviewStagePrompts.js` 中按当前阶段（`round1` / `round2` / `hr` / `custom`）组装系统提示，调用 `generateThreeTargetedInterviewQuestions(..., { systemPrompt })`；user 消息仍为 JD JSON 与经历摘要。自定义阶段的主体文案对应 Prompt 项 `interviewCustom`，可与设置页双向编辑。 |
+| 面试题库 UI | `@dnd-kit/core`：`useDraggable`（`nav-q-{questionId}`）与 `useDroppable`（`stage-drop-{stageId}`）完成拖放；落盘后更新岗位的 `interviewStageBuckets` 与 `InterviewWorkspacePage` 内 `enrichJobForInterviewWorkspace` 归一化。题目备战维度字段为 `prepDimension`，定义见 `db.js` 中 `INTERVIEW_PREP_DIMENSIONS`。 |
+| 面经发散出题 | `generateThreeTargetedInterviewQuestions`：若 `faceExpReference`（由当前岗位全部 `USER_COLLECTED` 题目正文拼接）非空，则 user 消息按「面经基准 → `getInterviewStageFocusForUserContext` → JD → 简历」分节；system 使用 `threeQuestionsDivergent` + `INTERVIEW_OUTPUT_CONTRACT_DIVERGENT`；否则沿用原分阶段 `systemPrompt` 与标准 user 体。 |
 
 **操作流程概要**：配置 API 与（可选）自定义 Prompt → 在个人信息库沉淀素材 → 岗位库解析 JD 与匹配分析 → 简历中心编排并导出 PDF → **分阶段专项面试**备战与复盘（按岗位进入工作台，选择轮次后生成模拟题）。
 
