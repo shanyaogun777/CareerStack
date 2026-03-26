@@ -5,7 +5,7 @@
 
 const LS_KEY = 'careerstack_ai_prompts_v1'
 
-/** @typedef {'jdParse'|'jobMatch'|'interviewQuestions'|'extractInterview'|'resumePolish'|'threeQuestions'|'interviewAnswerPolish'} AiPromptId */
+/** @typedef {'jdParse'|'jobMatch'|'interviewQuestions'|'extractInterview'|'resumePolish'|'threeQuestions'|'interviewAnswerPolish'|'interviewCustom'} AiPromptId */
 
 /** @type {Record<AiPromptId, string>} */
 export const AI_PROMPT_DEFAULTS = {
@@ -67,6 +67,10 @@ export const AI_PROMPT_DEFAULTS = {
 2. 不虚构用户未提及的经历或数据；可合理补充衔接句。
 3. 输出中只包含润色后的 Markdown 正文，不要前言后语。
 4. 若草稿为空，输出空字符串。`,
+
+  interviewCustom: `你是面试官。用户消息中将附带「岗位 JD JSON」与「用户项目/经历摘要」。
+请结合二者，按你认为最重要的考察维度（可自行混合技术、业务、行为等）设计高针对性提问。
+追问应可验证、可落地，避免空泛套话。`,
 }
 
 /** @type {readonly AiPromptId[]} */
@@ -81,6 +85,7 @@ export const AI_PROMPT_LABELS = {
   resumePolish: '简历经历 STAR 润色',
   threeQuestions: '模拟面试（3 道针对性题）',
   interviewAnswerPolish: '面试回答 STAR 润色',
+  interviewCustom: '专项面试 · 自定义阶段（系统提示主体）',
 }
 
 /**

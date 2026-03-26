@@ -6,7 +6,7 @@
 
 **本地优先的求职工作台** — 在浏览器里管理素材库、多版本简历、目标岗位 JD、面试题库与指挥部数据看板。
 
-**在线体验：** [CareerStack（Vercel）](https://careerstack-nine.vercel.app/)
+**在线体验：** [CareerStack（Vercel）](https://career-stack-lake.vercel.app/)
 
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -35,7 +35,7 @@
 
 - **数据隐私 (Local-first)**：简历、岗位、经历等核心数据默认只存在本机 **IndexedDB**，不经 CareerStack 自有服务器；求职素材由你本地掌控。可选登录 Supabase 做云端备份。
 
-- **AI 全流程**：通过你配置的 **OpenAI 兼容接口**（如 DeepSeek）直连调用 —— JD **结构化解析**、经历 **STAR 润色**、面试题生成与面经抽取等；**支持在「设置 → Prompt 管理」中按场景自定义系统提示词**，未配置时自动使用内置默认提示词。
+- **AI 全流程**：通过你配置的 **OpenAI 兼容接口**（如 DeepSeek）直连调用 —— JD **结构化解析**、经历 **STAR 润色**、**分阶段全流程模拟面试**（一面 / 二面 / HR / 自定义）与面经抽取等；**支持在「设置 → Prompt 管理」中按场景自定义系统提示词**，未配置时自动使用内置默认提示词。
 
 - **离线工作台（PWA）**：安装为应用后，静态资源由 Service Worker 预缓存；断网仍可浏览已保存内容（AI 等需联网功能除外）。
 
@@ -55,9 +55,9 @@
 | 图表 / 日历 | Recharts、react-calendar |
 | PWA | vite-plugin-pwa |
 | 可选云端 | Supabase Auth + `user_backups`（RLS），与本地 JSON 备份互补 |
-| AI 调用 | 浏览器直连 OpenAI 兼容 Chat Completions；提示词来自 `aiPrompts.js` 默认值 + localStorage 覆盖 |
+| AI 调用 | 浏览器直连 OpenAI 兼容 Chat Completions；提示词来自 `aiPrompts.js` 默认值 + localStorage 覆盖。**专项面试**在 `interviewStagePrompts.js` 中按当前阶段（`round1` / `round2` / `hr` / `custom`）组装系统提示，调用 `generateThreeTargetedInterviewQuestions(..., { systemPrompt })`；user 消息仍为 JD JSON 与经历摘要。自定义阶段的主体文案对应 Prompt 项 `interviewCustom`，可与设置页双向编辑。 |
 
-**操作流程概要**：配置 API 与（可选）自定义 Prompt → 在个人信息库沉淀素材 → 岗位库解析 JD 与匹配分析 → 简历中心编排并导出 PDF → 专项面试备战与复盘。
+**操作流程概要**：配置 API 与（可选）自定义 Prompt → 在个人信息库沉淀素材 → 岗位库解析 JD 与匹配分析 → 简历中心编排并导出 PDF → **分阶段专项面试**备战与复盘（按岗位进入工作台，选择轮次后生成模拟题）。
 
 ---
 

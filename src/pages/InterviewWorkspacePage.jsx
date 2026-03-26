@@ -21,6 +21,19 @@ import {
   hasAiApiKey,
   polishInterviewAnswerSTAR,
 } from '../services/ai'
+import {
+  getEffectivePrompt,
+  saveAiPromptOverrides,
+} from '../services/aiPrompts.js'
+import {
+  INTERVIEW_STAGE_TABS,
+  buildCustomStageSystemPrompt,
+  getInterviewStageSystemPrompt,
+} from '../services/interviewStagePrompts.js'
+import {
+  getLastInterviewStage,
+  setLastInterviewStage,
+} from '../services/interviewStagePersistence.js'
 import { MarkdownPreview } from '../components/experiences/MarkdownPreview'
 import { EmptyState } from '../components/ui/EmptyState'
 import { cn } from '../lib/cn'
@@ -61,6 +74,11 @@ export function InterviewWorkspacePage() {
   const parseRef = useRef(/** @type {HTMLTextAreaElement | null} */ (null))
   const [parseSource, setParseSource] = useState('')
 
+  /** @type {import('../services/interviewStagePrompts.js').InterviewStageId} */
+  const [interviewStage, setInterviewStage] = useState('round1')
+  const [customPromptDraft, setCustomPromptDraft] = useState('')
+  const [customPromptSavedHint, setCustomPromptSavedHint] = useState('')
+
   const persistTimer = useRef(/** @type {ReturnType<typeof setTimeout> | null} */ (null))
 
   const refreshJob = useCallback(async () => {
@@ -92,6 +110,16 @@ export function InterviewWorkspacePage() {
       cancelled = true
     }
   }, [idNum, invalidId])
+
+  useEffect(() => {
+    if (!job) return
+    setInterviewStage(getLastInterviewStage(job.id))
+  }, [job])
+
+  useEffect(() => {
+    if (interviewStage !== 'custom') return
+    setCustomPromptDraft(getEffectivePrompt('interviewCustom'))
+  }, [interviewStage])
 
   const questions = useMemo(
     () => job?.interviewQuestions ?? [],
@@ -176,6 +204,21 @@ export function InterviewWorkspacePage() {
     await refreshJob()
   }
 
+  const handleInterviewStageChange = useCallback(
+    /** @param {import('../services/interviewStagePrompts.js').InterviewStageId} stage */
+    (stage) => {
+      setInterviewStage(stage)
+      if (job) setLastInterviewStage(job.id, stage)
+    },
+    [job],
+  )
+
+  const saveCustomInterviewPrompt = () => {
+    saveAiPromptOverrides({ interviewCustom: customPromptDraft })
+    setCustomPromptSavedHint('已写入本机 Prompt 设置')
+    window.setTimeout(() => setCustomPromptSavedHint(''), 2400)
+  }
+
   const runAiMockThree = async () => {
     if (!job) return
     if (!hasAiApiKey()) {
@@ -188,9 +231,14 @@ export function InterviewWorkspacePage() {
     }
     setAiMockLoading(true)
     try {
+      const systemPrompt =
+        interviewStage === 'custom'
+          ? buildCustomStageSystemPrompt(customPromptDraft)
+          : getInterviewStageSystemPrompt(interviewStage)
       const items = await generateThreeTargetedInterviewQuestions(
         job.structuredJD,
         experiences,
+        { systemPrompt },
       )
       const next = [...(job.interviewQuestions || []), ...items]
       await jobRepository.update(job.id, {
@@ -292,7 +340,7 @@ export function InterviewWorkspacePage() {
       <div className="px-8 py-12 text-center text-sm leading-relaxed text-slate-600">
         无效的岗位链接。
         <Link to={appPath('interview')} className="ml-2 text-indigo-400/85 hover:underline">
-          返回列表
+          返回岗位列表
         </Link>
       </div>
     )
@@ -322,10 +370,10 @@ export function InterviewWorkspacePage() {
           <button
             type="button"
             onClick={() => navigate(appPath('interview'))}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/90 bg-white px-2.5 py-1.5 text-[12px] font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50/90"
+            className="inline-flex items-center gap-1.5 rounded-lg border-2 border-slate-200/90 bg-white px-3 py-2 text-[12px] font-semibold text-slate-800 shadow-sm transition-colors hover:border-indigo-200/90 hover:bg-indigo-50/40"
           >
-            <ArrowLeft className="size-[14px] text-slate-400" strokeWidth={1.5} aria-hidden />
-            返回列表
+            <ArrowLeft className="size-[14px] text-slate-500" strokeWidth={1.5} aria-hidden />
+            返回岗位列表
           </button>
           <div className="min-w-0">
             <h1 className="truncate text-base font-semibold tracking-tight text-slate-800">
@@ -353,6 +401,58 @@ export function InterviewWorkspacePage() {
         </div>
       </header>
 
+      <div
+        className="mb-3 flex flex-wrap gap-1 rounded-xl border border-slate-100 bg-slate-50/60 p-1"
+        role="tablist"
+        aria-label="面试阶段"
+      >
+        {INTERVIEW_STAGE_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={interviewStage === tab.id}
+            onClick={() => handleInterviewStageChange(tab.id)}
+            className={cn(
+              'rounded-lg px-3 py-2 text-left text-[11px] font-semibold transition-colors sm:text-[12px]',
+              interviewStage === tab.id
+                ? 'bg-white text-indigo-900 shadow-sm ring-1 ring-indigo-100/90'
+                : 'text-slate-600 hover:bg-white/70',
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {interviewStage === 'custom' ? (
+        <div className="mb-4 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+          <p className="mb-2 text-[11px] leading-relaxed text-slate-600">
+            以下为「自定义」轮次使用的系统提示主体（与设置中「专项面试 · 自定义阶段」同源）。保存后点击右侧「开始模拟」将按此侧重出题；用户消息中仍会附带该岗位的 JD 与简历摘要。
+          </p>
+          <textarea
+            value={customPromptDraft}
+            onChange={(e) => setCustomPromptDraft(e.target.value)}
+            spellCheck={false}
+            rows={6}
+            className="w-full resize-y rounded-lg border border-slate-200/90 bg-slate-50/50 px-3 py-2 font-mono text-[11px] leading-relaxed text-slate-800 focus:border-indigo-200/90 focus:outline-none focus:ring-2 focus:ring-indigo-50"
+            placeholder="描述你希望 AI 面试官侧重考察的方向…"
+          />
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={saveCustomInterviewPrompt}
+              className="rounded-lg bg-slate-800 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-slate-700"
+            >
+              保存到 Prompt 设置
+            </button>
+            {customPromptSavedHint ? (
+              <span className="text-[11px] text-emerald-600">{customPromptSavedHint}</span>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
       <Group
         orientation="horizontal"
         className="flex min-h-[min(72vh,720px)] flex-1 gap-0"
@@ -372,7 +472,7 @@ export function InterviewWorkspacePage() {
             <NavSection
               title="AI 模拟题"
               emptyHint="暂无 AI 题"
-              emptyDescription="点击右侧「AI 模拟提问」或上方工具生成"
+              emptyDescription="选择上方面试阶段后，在右侧点击「开始模拟」生成本题"
             >
               {aiList.map((q) => (
                 <NavItem
@@ -446,7 +546,7 @@ export function InterviewWorkspacePage() {
                     ) : (
                       <Sparkles className="size-[14px] text-white/90" strokeWidth={1.5} aria-hidden />
                     )}
-                    AI 模拟提问（3 道）
+                    开始模拟（3 题）
                   </button>
                   <button
                     type="button"

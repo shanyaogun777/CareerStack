@@ -365,11 +365,13 @@ export async function extractInterviewQuestionsFromPost(
  * 基于 JD + 简历生成 3 道模拟题（AI_MOCK），用于面试工作台。
  * @param {import('./db.js').StructuredJD | null} structuredJD
  * @param {import('./db.js').Experience[]} experiences
+ * @param {{ systemPrompt?: string }} [options] - 传入 `systemPrompt` 时覆盖默认「三道题」系统提示（分阶段模拟）
  * @returns {Promise<import('./db.js').InterviewQuestionItem[]>}
  */
 export async function generateThreeTargetedInterviewQuestions(
   structuredJD,
   experiences,
+  options = {},
 ) {
   const jdText = JSON.stringify(structuredJD ?? {}, null, 0).slice(0, 10_000)
   const expBrief = experiences
@@ -382,8 +384,13 @@ export async function generateThreeTargetedInterviewQuestions(
 
   const user = `【岗位 JD JSON】\n${jdText}\n\n【用户项目/经历摘要】\n${expBrief || '（无）'}`
 
+  const system =
+    typeof options.systemPrompt === 'string' && options.systemPrompt.trim()
+      ? options.systemPrompt.trim()
+      : getEffectivePrompt('threeQuestions')
+
   const text = await chatCompletionText({
-    system: getEffectivePrompt('threeQuestions'),
+    system,
     user,
     temperature: 0.4,
   })
