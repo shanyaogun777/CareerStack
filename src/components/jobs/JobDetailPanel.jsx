@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ClipboardList, Loader2, Pencil, Sparkles, Trash2, UserSearch, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
   JOB_STATUSES,
   hashStructuredJD,
   jobRepository,
+  normalizeExperienceCategory,
   normalizeJobStatus,
 } from '../../services/db'
 import { analyzeJobMatch, hasAiApiKey } from '../../services/ai'
@@ -47,21 +48,46 @@ export function JobDetailPanel({
   onJobUpdated,
   onDismiss,
 }) {
-  const rec = recommendExperiences(job.structuredJD, experiences, 16)
+  const eligibleExperiences = useMemo(
+    () =>
+      experiences.filter(
+        (e) => normalizeExperienceCategory(e.category) !== 'education',
+      ),
+    [experiences],
+  )
+  const rec = useMemo(
+    () => recommendExperiences(job.structuredJD, eligibleExperiences, 16),
+    [job.structuredJD, eligibleExperiences],
+  )
   const recIds = useMemo(() => new Set(rec.map((e) => e.id)), [rec])
 
   const [selectedForMatch, setSelectedForMatch] = useState(/** @type {number[]} */ ([]))
+  const prevJobIdRef = useRef(/** @type {number | null} */ (null))
   useEffect(() => {
-    if (!experiences.length) {
+    if (!eligibleExperiences.length) {
       setSelectedForMatch([])
+      prevJobIdRef.current = job.id
       return
     }
+    const availableIdSet = new Set(eligibleExperiences.map((e) => e.id))
+    const fromCache = Array.isArray(job.matchAnalysis?.experienceIds)
+      ? job.matchAnalysis.experienceIds.filter((id) => availableIdSet.has(id))
+      : []
     const def =
       rec.length > 0
         ? rec.map((e) => e.id)
-        : experiences.slice(0, Math.min(3, experiences.length)).map((e) => e.id)
-    setSelectedForMatch(def)
-  }, [job.id, job.structuredJD, experiences, rec])
+        : eligibleExperiences
+            .slice(0, Math.min(3, eligibleExperiences.length))
+            .map((e) => e.id)
+    setSelectedForMatch((prev) => {
+      const sameJob = prevJobIdRef.current === job.id
+      const keep = prev.filter((id) => availableIdSet.has(id))
+      if (sameJob && keep.length > 0) return keep
+      if (fromCache.length > 0) return fromCache
+      return def
+    })
+    prevJobIdRef.current = job.id
+  }, [job.id, job.matchAnalysis?.experienceIds, eligibleExperiences, rec])
 
   const [matchLoading, setMatchLoading] = useState(false)
   const [matchError, setMatchError] = useState('')
@@ -85,7 +111,9 @@ export function JobDetailPanel({
       setMatchError('请先完成 JD 解析或编辑结构化信息')
       return
     }
-    const picked = experiences.filter((e) => selectedForMatch.includes(e.id))
+    const picked = eligibleExperiences.filter((e) =>
+      selectedForMatch.includes(e.id),
+    )
     if (picked.length === 0) {
       setMatchError('请至少选择一条个人信息库素材')
       return
@@ -196,10 +224,12 @@ export function JobDetailPanel({
             勾选用于分析的素材（默认勾选推荐项），将结合岗位 JD 与素材生成评分。
           </p>
           <div className="mb-2 max-h-40 space-y-1 overflow-y-auto rounded-lg border border-slate-100 bg-slate-50/70 p-2.5">
-            {experiences.length === 0 ? (
-              <p className="text-[11px] text-slate-400">个人信息库暂无条目</p>
+            {eligibleExperiences.length === 0 ? (
+              <p className="text-[11px] text-slate-400">
+                个人信息库暂无可分析条目（教育背景不参与匹配度诊断）。
+              </p>
             ) : (
-              experiences.map((exp) => (
+              eligibleExperiences.map((exp) => (
                 <label
                   key={exp.id}
                   className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 hover:bg-white"
