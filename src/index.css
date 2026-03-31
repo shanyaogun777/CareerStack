@@ -67,15 +67,48 @@
   --color-zinc-900: #18181b;
   --color-zinc-950: #09090b;
 
-  /* 应用 UI 字体栈：西文 Inter / 系统 SF，中文苹方 */
-  --font-sans:
-    'Inter', 'SF Pro Display', 'PingFang SC', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* 全站 indigo/violet 映射为冷灰青，避免蓝紫泛滥 */
+  --color-indigo-50: #f3f6f5;
+  --color-indigo-100: #e8eeec;
+  --color-indigo-200: #d2ddda;
+  --color-indigo-300: #b1c4c0;
+  --color-indigo-400: #8fa8a3;
+  --color-indigo-500: #6f8d88;
+  --color-indigo-600: #57736f;
+  --color-indigo-700: #455d5a;
+  --color-indigo-800: #344847;
+  --color-indigo-900: #263533;
+  --color-indigo-950: #151f1e;
 
-  /* 品牌首页：显式使用 Inter → SF Pro Display → 苹方（与 font-landing 一致） */
+  --color-violet-50: #f5f6f6;
+  --color-violet-100: #eceeee;
+  --color-violet-200: #d9dfde;
+  --color-violet-300: #b7c2bf;
+  --color-violet-400: #96a7a3;
+  --color-violet-500: #778d88;
+  --color-violet-600: #60756f;
+  --color-violet-700: #4e5e5b;
+  --color-violet-800: #3c4947;
+  --color-violet-900: #2a3433;
+  --color-violet-950: #1a2120;
+
+  /* 高冷点睛色：矿物青灰（非蓝紫） */
+  --color-accent: #3d5c5a;
+  --color-accent-foreground: #f4f6f6;
+
+  /* 应用 UI：Source Sans 3 / SF / 苹方 */
+  --font-sans:
+    'Source Sans 3', 'SF Pro Display', 'PingFang SC', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* 品牌首页与正文无衬线（与 font-sans 一致） */
   --font-landing:
-    'Inter', 'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', ui-sans-serif,
-    system-ui, sans-serif;
+    'Source Sans 3', 'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    ui-sans-serif, system-ui, sans-serif;
+
+  /* 标题 / Editorial 衬线（Fraunces：可变轴、杂志感） */
+  --font-editorial:
+    'Fraunces', 'Noto Serif SC', 'Songti SC', Georgia, 'Times New Roman', serif;
 }
 
 :root {
@@ -84,16 +117,18 @@
   --bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
+  --accent: #3d5c5a;
+  --accent-bg: rgba(61, 92, 90, 0.08);
+  --accent-border: rgba(61, 92, 90, 0.35);
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: 'Inter', 'SF Pro Display', 'PingFang SC', system-ui, -apple-system, 'Segoe UI', Roboto,
+  --sans:
+    'Source Sans 3', 'SF Pro Display', 'PingFang SC', system-ui, -apple-system, 'Segoe UI', Roboto,
     sans-serif;
-  --heading: 'Inter', 'SF Pro Display', 'PingFang SC', system-ui, -apple-system, sans-serif;
+  --heading:
+    'Source Sans 3', 'SF Pro Display', 'PingFang SC', system-ui, -apple-system, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/162% var(--sans);
@@ -118,9 +153,9 @@
     --bg: #16171d;
     --border: #2e303a;
     --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
+    --accent: #6b8f8c;
+    --accent-bg: rgba(107, 143, 140, 0.12);
+    --accent-border: rgba(107, 143, 140, 0.45);
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
@@ -359,7 +394,7 @@ code {
     ui-sans-serif,
     system-ui,
     -apple-system,
-    'Inter',
+    'Source Sans 3',
     'Segoe UI',
     sans-serif;
   background: #fff;
@@ -452,18 +487,51 @@ code {
   }
 }
 
+/* 首页纸质颗粒（仅 Landing 根节点使用） */
+.landing-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.055;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  .landing-grain {
+    opacity: 0.04;
+    mix-blend-mode: overlay;
+  }
+}
+
+/* 工作台底层纸感（仅 app 布局启用） */
+.workspace-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.042;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  .workspace-grain {
+    opacity: 0.03;
+    mix-blend-mode: overlay;
+  }
+}
+
 @layer utilities {
   .font-landing {
     font-family: var(--font-landing);
   }
 
-  /* 品牌首页 Hero 大标题：中文马善政 / 英文 Gelasio（由 index.html 加载） */
-  .font-hero-cn {
-    font-family: 'Ma Shan Zheng', var(--font-landing), cursive;
-  }
-
+  /* 品牌首页 Hero：Editorial 衬线（与 @theme --font-editorial / font-editorial 一致） */
+  .font-hero-cn,
   .font-hero-en {
-    font-family: 'Gelasio', Georgia, 'Times New Roman', serif;
+    font-family: var(--font-editorial);
   }
 
   .animate-careerstack-fade-in-up {

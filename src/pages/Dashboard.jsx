@@ -64,8 +64,8 @@ export function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center gap-2 py-24 text-sm leading-relaxed text-slate-500">
-        <Loader2 className="size-5 animate-spin text-indigo-400/70" strokeWidth={1.5} aria-hidden />
+      <div className="flex flex-1 items-center justify-center gap-2 py-24 text-sm leading-relaxed text-zinc-500">
+        <Loader2 className="size-5 animate-spin text-[var(--color-accent)]/70" strokeWidth={1.5} aria-hidden />
         加载数据…
       </div>
     )
@@ -75,8 +75,10 @@ export function Dashboard() {
     <div className="mx-auto w-full max-w-[1600px] flex-1 space-y-8 px-1 md:px-2">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-slate-800">求职指挥部</h1>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
+          <h1 className="font-editorial text-2xl font-medium tracking-tight text-zinc-900">
+            求职指挥部
+          </h1>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600">
             岗位数据实时汇总：投递漏斗、周趋势与面试日程。
           </p>
         </div>
@@ -101,7 +103,7 @@ export function Dashboard() {
           label="面试中"
           value={counts.面试中}
           sub="当前流程中"
-          accent="bg-indigo-400/75"
+          accent="bg-[var(--color-accent)]/80"
         />
         <StatCard
           icon={Award}
@@ -127,7 +129,7 @@ export function Dashboard() {
       </section>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <section className="border border-zinc-200/90 bg-white/95 p-6 shadow-[0_12px_34px_rgba(18,18,18,0.05)]">
           <h2 className="mb-4 text-sm font-semibold tracking-tight text-slate-800">投递漏斗</h2>
           <p className="mb-3 text-[11px] leading-relaxed text-slate-600">
             各阶段岗位数量（非严格转化率，便于横向对比）
@@ -155,7 +157,7 @@ export function Dashboard() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <section className="border border-zinc-200/90 bg-white/95 p-6 shadow-[0_12px_34px_rgba(18,18,18,0.05)]">
           <h2 className="mb-4 text-sm font-semibold tracking-tight text-slate-800">近 4 周新增岗位</h2>
           <p className="mb-3 text-[11px] leading-relaxed text-slate-600">按岗位创建时间（createdAt）统计周活跃度</p>
           <div className="h-[260px] w-full min-w-0">
@@ -181,7 +183,7 @@ export function Dashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <InterviewCalendarPanel jobs={jobs} />
 
-        <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <section className="border border-zinc-200/90 bg-white/95 p-6 shadow-[0_12px_34px_rgba(18,18,18,0.05)]">
           <h2 className="mb-2 text-sm font-semibold tracking-tight text-slate-800">最受欢迎简历版本</h2>
           <p className="mb-4 text-[11px] leading-relaxed text-slate-600">
             统计各简历在岗位中关联的投递次数（appliedResumeId）
@@ -231,7 +233,7 @@ function StatCard({ icon, label, value, sub, accent, className }) {
   return (
     <div
       className={cn(
-        'rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-shadow duration-200',
+        'border border-zinc-200/90 bg-white/95 p-5 shadow-[0_10px_26px_rgba(18,18,18,0.04)] transition-shadow duration-200',
         className,
       )}
     >
@@ -241,7 +243,7 @@ function StatCard({ icon, label, value, sub, accent, className }) {
           <p className="mt-1 text-2xl font-bold tabular-nums text-slate-800">{value}</p>
           <p className="mt-0.5 text-[10px] leading-relaxed text-slate-500">{sub}</p>
         </div>
-        <div className={cn('rounded-lg p-2 text-white', accent)}>
+        <div className={cn('border border-zinc-200/80 bg-zinc-800 p-2 text-white', accent)}>
           <Icon className="size-[18px]" strokeWidth={1.5} aria-hidden />
         </div>
       </div>

@@ -67,11 +67,11 @@ function SocialIconLink({ href, label, username, children }) {
       rel="noopener noreferrer"
       title={`${label}：${username}`}
       aria-label={`${label}：${username}`}
-      className="group relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200/90 bg-white text-slate-800 shadow-sm transition hover:border-slate-300"
+      className="group relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-zinc-200/90 bg-white text-zinc-800 shadow-sm transition hover:border-zinc-300"
     >
       {children}
       <span
-        className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800/95 px-3 py-1.5 text-[11px] font-medium text-white opacity-0 shadow-lg ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
+        className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg bg-zinc-900/95 px-3 py-1.5 text-[11px] font-medium text-white opacity-0 shadow-lg ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
         role="tooltip"
       >
         {username}
@@ -84,29 +84,19 @@ export function LandingPage() {
   const { user, loading, signOut } = useAuth()
 
   return (
-    <div className="font-landing flex min-h-svh flex-col bg-[#fafbfc] text-slate-800 antialiased">
-      {/* Mesh：极低透明度蓝紫光晕（各层 α ≤ 10%） */}
-      <div
-        className="pointer-events-none fixed inset-0 overflow-hidden"
-        aria-hidden
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_85%_at_50%_-15%,rgba(99,102,241,0.08),transparent_58%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_100%_35%,rgba(139,92,246,0.07),transparent_52%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_45%_at_0%_85%,rgba(59,130,246,0.08),transparent_55%)]" />
-        <div className="absolute left-1/2 top-1/3 h-[min(420px,55vh)] w-[min(420px,70vw)] -translate-x-1/2 rounded-full bg-indigo-400/[0.06] blur-[100px]" />
-        <div className="absolute bottom-0 right-0 h-[min(360px,45vh)] w-[min(360px,55vw)] rounded-full bg-violet-400/[0.05] blur-[90px]" />
-      </div>
+    <div className="font-landing relative flex min-h-svh flex-col bg-[#f7f6f4] text-zinc-800 antialiased">
+      <div className="landing-grain" aria-hidden />
 
-      <header className="relative z-10 shrink-0 border-b border-slate-100/80 bg-white/70 px-5 py-4 backdrop-blur-md md:px-10">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
-          <span className="text-[15px] font-bold tracking-tighter text-slate-800 antialiased">
+      <header className="relative z-10 shrink-0 border-b border-zinc-200/70 bg-white/80 px-5 py-6 backdrop-blur-md md:px-12">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+          <span className="font-editorial text-lg font-medium tracking-tight text-zinc-900 md:text-xl">
             CareerStack
           </span>
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
             {!loading && user ? (
               <>
                 <span
-                  className="hidden max-w-[10rem] truncate text-xs text-slate-500 sm:inline"
+                  className="hidden max-w-[10rem] truncate text-xs text-zinc-500 sm:inline"
                   title={user.email ?? ''}
                 >
                   {user.email}
@@ -114,7 +104,7 @@ export function LandingPage() {
                 <button
                   type="button"
                   onClick={() => void signOut()}
-                  className="rounded-full border border-slate-200/90 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+                  className="rounded-full border border-zinc-200/90 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:bg-zinc-50"
                 >
                   退出
                 </button>
@@ -122,14 +112,14 @@ export function LandingPage() {
             ) : !loading ? (
               <Link
                 to="/login"
-                className="rounded-full border border-slate-200/90 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
+                className="rounded-full border border-zinc-200/90 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50"
               >
                 登录 / 注册
               </Link>
             ) : null}
             <Link
               to={APP_BASE}
-              className="rounded-full bg-slate-800 px-4 py-2 text-sm font-medium tracking-wide text-white shadow-sm transition hover:bg-slate-700"
+              className="rounded-full bg-zinc-900 px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-zinc-800 md:text-sm md:tracking-normal"
             >
               进入工作台
             </Link>
@@ -138,59 +128,58 @@ export function LandingPage() {
       </header>
 
       <main className="relative z-10 flex min-h-0 flex-1 flex-col">
-        {/* 主标题区：在顶栏与下方内容之间垂直居中 */}
-        <section className="flex flex-1 flex-col justify-center px-5 py-24 text-center md:py-32">
-          <div className="mx-auto w-full max-w-3xl">
+        <section className="flex flex-1 flex-col justify-center px-5 py-20 text-center md:px-10 md:py-28 lg:py-36">
+          <div className="mx-auto w-full max-w-4xl">
             <div
-              className="animate-careerstack-fade-in-up mb-6 space-y-1.5"
+              className="animate-careerstack-fade-in-up mb-10 space-y-2 md:mb-12"
               style={{ animationDelay: '40ms' }}
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 antialiased">
+              <p className="text-[11px] font-medium uppercase tracking-[0.35em] text-zinc-500">
                 本地优先 · 求职工作台
               </p>
               <p
                 lang="en"
-                className="text-[10px] font-medium uppercase tracking-[0.18em] text-slate-600 antialiased md:text-[11px]"
+                className="text-[10px] font-medium uppercase tracking-[0.28em] text-zinc-500 md:text-[11px]"
               >
                 Local-first · Job workspace
               </p>
             </div>
             <h1
-              className="animate-careerstack-fade-in-up text-balance antialiased"
+              className="animate-careerstack-fade-in-up text-balance"
               style={{ animationDelay: '90ms' }}
             >
-              <span className="font-hero-cn block bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent text-5xl font-normal tracking-tighter sm:text-6xl md:text-6xl md:leading-[1.12] lg:text-7xl">
+              <span className="font-hero-cn block text-5xl font-normal leading-[1.05] tracking-tight text-zinc-900 sm:text-6xl md:text-7xl lg:text-8xl">
                 让工作触手可及
               </span>
               <span
                 lang="en"
-                className="font-hero-en mt-3 block bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent text-lg font-semibold tracking-tight sm:text-xl md:mt-4 md:text-2xl lg:text-[1.65rem] lg:leading-snug"
+                className="font-hero-en mt-3 block text-lg font-normal italic leading-snug tracking-tight text-zinc-600 md:mt-5 md:text-2xl lg:text-[1.75rem]"
               >
                 Offers Within Reach
               </span>
             </h1>
             <div
-              className="animate-careerstack-fade-in-up mx-auto mt-8 max-w-2xl md:mt-10"
+              className="animate-careerstack-fade-in-up mx-auto mt-12 max-w-2xl md:mt-10"
               style={{ animationDelay: '160ms' }}
             >
-              <p className="whitespace-nowrap text-base leading-loose text-slate-800 md:text-lg">
+              <p className="text-base leading-relaxed text-zinc-700 md:text-lg md:leading-relaxed">
                 在浏览器本地管理简历与岗位，AI 按你的密钥调用；从素材整理到面试备战，一条链路完成。
               </p>
               <p
                 lang="en"
-                className="mt-3 whitespace-nowrap text-sm leading-loose text-slate-800 md:text-[15px]"
+                className="mt-4 text-sm leading-relaxed text-zinc-600 md:text-[15px] md:leading-relaxed"
               >
                 Manage resumes and jobs locally in your browser; AI uses your own API keys—from
                 materials to interview prep, one seamless flow.
               </p>
             </div>
             <div
-              className="animate-careerstack-fade-in-up mt-7 flex justify-center md:mt-8"
+              className="animate-careerstack-fade-in-up mt-12 flex justify-center md:mt-14"
               style={{ animationDelay: '220ms' }}
             >
               <Link
                 to={APP_BASE}
-                className="inline-flex min-h-[48px] min-w-[200px] items-center justify-center rounded-full bg-violet-400 px-8 py-3 text-sm font-medium tracking-wide text-white shadow-md shadow-violet-400/20 transition hover:bg-violet-500"
+                className="inline-flex min-h-[52px] min-w-[220px] items-center justify-center rounded-full border border-zinc-900 bg-zinc-900 px-10 py-3.5 text-sm font-semibold tracking-wide text-white transition hover:bg-zinc-800"
               >
                 立即开启工作台
               </Link>
@@ -198,40 +187,40 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="shrink-0 border-t border-slate-100/90 bg-white/50 px-5 py-12 backdrop-blur-sm md:py-14">
+        <section className="shrink-0 border-t border-zinc-200/80 bg-white/60 px-5 py-20 backdrop-blur-[2px] md:px-10 md:py-24">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-center text-5xl font-bold tracking-tighter text-slate-800 antialiased md:text-6xl">
+            <h2 className="font-editorial text-center text-4xl font-normal leading-tight tracking-tight text-zinc-900 md:text-6xl md:leading-[1.08]">
               全方位助力求职
             </h2>
-            <ul className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <ul className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4 lg:gap-8">
               {FEATURES.map(({ title, body, icon }, i) => (
                 <li
                   key={title}
-                  className="animate-careerstack-fade-in-up flex flex-col rounded-2xl border border-slate-100 bg-white/95 p-6 shadow-sm transition-transform duration-300 ease-out will-change-transform hover:-translate-y-1"
+                  className="animate-careerstack-fade-in-up flex flex-col border border-zinc-200/90 bg-white/90 p-8 transition-shadow duration-300 ease-out hover:shadow-sm"
                   style={{ animationDelay: `${280 + i * 75}ms` }}
                 >
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 text-indigo-400/85">
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center border border-zinc-200/90 bg-zinc-50 text-zinc-700">
                     {createElement(icon, {
                       className: 'size-[22px]',
                       strokeWidth: 1.5,
                       'aria-hidden': true,
                     })}
                   </div>
-                  <h3 className="text-base font-bold tracking-tighter text-slate-800 antialiased">
+                  <h3 className="font-editorial text-lg font-medium tracking-tight text-zinc-900">
                     {title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-800">{body}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-zinc-600">{body}</p>
                 </li>
               ))}
             </ul>
           </div>
         </section>
 
-        <footer className="relative z-10 mt-auto shrink-0 border-t border-slate-100 bg-white/40 px-5 py-10 text-center backdrop-blur-sm md:py-12">
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-800 antialiased">
+        <footer className="relative z-10 mt-auto shrink-0 border-t border-zinc-200/80 bg-white/50 px-5 py-14 text-center backdrop-blur-sm md:py-16">
+          <p className="text-[11px] font-medium uppercase tracking-[0.35em] text-zinc-500">
             联系我们
           </p>
-          <div className="mt-4 flex items-center justify-center gap-4">
+          <div className="mt-6 flex items-center justify-center gap-4">
             <SocialIconLink
               href={`https://github.com/shanyaogun777`}
               label="GitHub"
@@ -247,7 +236,7 @@ export function LandingPage() {
               <XiaohongshuGlyph className="size-6" />
             </SocialIconLink>
           </div>
-          <p className="mx-auto mt-8 max-w-md text-xs leading-relaxed text-slate-800/80">
+          <p className="mx-auto mt-10 max-w-md text-xs leading-relaxed text-zinc-500">
             数据默认仅存本机；请妥善保管 API Key 与备份文件。
           </p>
         </footer>

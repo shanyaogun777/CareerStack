@@ -65,18 +65,18 @@ export function Sidebar({ onOpenSettings, onOpenGuide, onNavigate }) {
 
   return (
     <aside
-      className="flex w-56 shrink-0 flex-col border-r border-slate-100 bg-white"
+      className="relative z-10 flex w-56 shrink-0 flex-col border-r border-zinc-200/80 bg-[#f9f8f6]/95 backdrop-blur-sm"
       aria-label="应用侧栏"
     >
-      <header className="border-b border-slate-100 px-6 py-6">
+      <header className="border-b border-zinc-200/85 px-6 py-6">
         <Link
           to="/"
-          className="block rounded-md text-left outline-none ring-slate-300 transition hover:text-slate-900 focus-visible:ring-2"
+          className="block rounded-md text-left outline-none ring-zinc-300 transition hover:text-zinc-900 focus-visible:ring-2"
         >
-          <div className="text-[15px] font-semibold tracking-tight text-slate-800">
+          <div className="font-editorial text-[18px] font-medium tracking-tight text-zinc-900">
             CareerStack
           </div>
-          <p className="mt-1 text-xs leading-relaxed text-slate-500">
+          <p className="mt-1 text-[11px] leading-relaxed tracking-wide text-zinc-500">
             本地求职工作台
           </p>
         </Link>
@@ -91,7 +91,7 @@ export function Sidebar({ onOpenSettings, onOpenGuide, onNavigate }) {
                 {createElement(icon, {
                   className: [
                     'size-[18px] shrink-0',
-                    active ? 'text-indigo-400/85' : 'text-slate-400',
+                    active ? 'text-[var(--color-accent)]' : 'text-zinc-400',
                   ].join(' '),
                   strokeWidth: 1.5,
                   'aria-hidden': true,
@@ -108,10 +108,10 @@ export function Sidebar({ onOpenSettings, onOpenGuide, onNavigate }) {
                     navigate(path)
                   }}
                   className={[
-                    'flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition-colors duration-200',
+                    'flex w-full items-center gap-2.5 border border-transparent px-3 py-2.5 text-left text-sm transition-colors duration-200',
                     active
-                      ? 'bg-slate-100/90 font-medium text-slate-800'
-                      : 'text-slate-600 hover:bg-slate-50/90 hover:text-slate-800',
+                      ? 'border-zinc-200/90 bg-white/90 font-medium text-zinc-900 shadow-[0_6px_20px_rgba(12,12,12,0.04)]'
+                      : 'text-zinc-600 hover:border-zinc-200/70 hover:bg-white/70 hover:text-zinc-800',
                   ].join(' ')}
                   aria-current={active ? 'page' : undefined}
                 >
@@ -123,27 +123,27 @@ export function Sidebar({ onOpenSettings, onOpenGuide, onNavigate }) {
         </ul>
       </nav>
 
-      <div className="mt-auto border-t border-slate-100 p-3">
-        <p className="px-3 pb-2 text-[10px] leading-relaxed text-slate-400" title={syncHint}>
+      <div className="mt-auto border-t border-zinc-200/80 p-3">
+        <p className="px-3 pb-2 text-[10px] leading-relaxed text-zinc-400" title={syncHint}>
           {syncHint}
         </p>
         {!loading && !user ? (
           <Link
             to="/login"
-            className="mb-1 flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition-colors duration-200 hover:bg-slate-50/90 hover:text-slate-800"
+            className="mb-1 flex w-full items-center gap-2.5 border border-transparent px-3 py-2.5 text-left text-sm text-zinc-600 transition-colors duration-200 hover:border-zinc-200/70 hover:bg-white/70 hover:text-zinc-800"
           >
-            <LogIn className="size-[18px] shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden />
+            <LogIn className="size-[18px] shrink-0 text-zinc-400" strokeWidth={1.5} aria-hidden />
             <span>登录 / 注册</span>
           </Link>
         ) : !loading && user ? (
           <div className="mb-2 space-y-1 px-3">
-            <p className="truncate text-[11px] text-slate-500" title={user.email ?? ''}>
+            <p className="truncate text-[11px] text-zinc-500" title={user.email ?? ''}>
               {user.email}
             </p>
             <button
               type="button"
               onClick={() => void signOut()}
-              className="text-[11px] font-medium text-slate-500 underline-offset-2 hover:text-slate-700 hover:underline"
+              className="text-[11px] font-medium text-zinc-500 underline-offset-2 hover:text-zinc-700 hover:underline"
             >
               退出登录
             </button>
@@ -154,9 +154,9 @@ export function Sidebar({ onOpenSettings, onOpenGuide, onNavigate }) {
             <button
               type="button"
               onClick={onOpenGuide}
-              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition-colors duration-200 hover:bg-slate-50/90 hover:text-slate-800"
+              className="flex w-full items-center gap-2.5 border border-transparent px-3 py-2.5 text-left text-sm text-zinc-600 transition-colors duration-200 hover:border-zinc-200/70 hover:bg-white/70 hover:text-zinc-800"
             >
-              <BookOpen className="size-[18px] shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden />
+              <BookOpen className="size-[18px] shrink-0 text-zinc-400" strokeWidth={1.5} aria-hidden />
               <span>使用说明</span>
             </button>
           ) : null}
@@ -164,9 +164,9 @@ export function Sidebar({ onOpenSettings, onOpenGuide, onNavigate }) {
             <button
               type="button"
               onClick={onOpenSettings}
-              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition-colors duration-200 hover:bg-slate-50/90 hover:text-slate-800"
+              className="flex w-full items-center gap-2.5 border border-transparent px-3 py-2.5 text-left text-sm text-zinc-600 transition-colors duration-200 hover:border-zinc-200/70 hover:bg-white/70 hover:text-zinc-800"
             >
-              <Settings className="size-[18px] shrink-0 text-slate-400" strokeWidth={1.5} aria-hidden />
+              <Settings className="size-[18px] shrink-0 text-zinc-400" strokeWidth={1.5} aria-hidden />
               <span>设置</span>
             </button>
           ) : null}

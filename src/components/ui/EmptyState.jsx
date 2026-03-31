@@ -13,12 +13,12 @@ export function EmptyState({ icon, title, description, className, children }) {
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200/90 bg-gradient-to-b from-slate-50/90 to-white px-8 py-14 text-center',
+        'flex flex-col items-center justify-center border border-dashed border-zinc-200/90 bg-gradient-to-b from-zinc-50/80 to-white px-8 py-14 text-center',
         className,
       )}
     >
       {icon ? (
-        <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-slate-100/90 text-indigo-400/75">
+        <div className="mb-4 flex size-14 items-center justify-center border border-zinc-200/80 bg-zinc-100/90 text-[var(--color-accent)]/80">
           {icon}
         </div>
       ) : null}

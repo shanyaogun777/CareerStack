@@ -111,8 +111,8 @@ export function JobsPage() {
     <div className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col">
       <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold tracking-tight text-slate-800">岗位库</h1>
-          <p className="mt-1 max-w-xl text-sm leading-relaxed text-slate-600">
+          <h1 className="font-editorial text-2xl font-medium tracking-tight text-zinc-900">岗位库</h1>
+          <p className="mt-1 max-w-xl text-sm leading-relaxed text-zinc-600">
             管理目标岗位与 JD；使用 AI 解析后，系统会根据「关键技能点」从个人信息库推荐相关经历。
           </p>
         </div>
@@ -120,7 +120,7 @@ export function JobsPage() {
           <button
             type="button"
             onClick={() => setParseUrlOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200/90 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors duration-200 hover:bg-slate-50/90"
+            className="inline-flex items-center gap-2 border border-zinc-200/90 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-[0_8px_20px_rgba(18,18,18,0.04)] transition-colors duration-200 hover:bg-zinc-50/90"
           >
             <Link2 className="size-[18px] text-slate-400" strokeWidth={1.5} aria-hidden />
             解析 URL
@@ -128,7 +128,7 @@ export function JobsPage() {
           <button
             type="button"
             onClick={openCreate}
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-slate-700"
+            className="inline-flex items-center gap-2 border border-zinc-900 bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white shadow-[0_8px_20px_rgba(18,18,18,0.08)] transition-colors duration-200 hover:bg-zinc-800"
           >
             <Plus className="size-[18px] text-white/90" strokeWidth={1.5} aria-hidden />
             添加岗位
@@ -176,7 +176,7 @@ export function JobsPage() {
         </div>
 
         {selectedJob ? (
-          <div className="flex h-[min(68vh,560px)] w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white lg:h-auto lg:min-h-0 lg:w-[380px] lg:max-w-[40%]">
+          <div className="flex h-[min(68vh,560px)] w-full shrink-0 flex-col overflow-hidden border border-zinc-200/90 bg-white/95 shadow-[0_10px_24px_rgba(18,18,18,0.04)] lg:h-auto lg:min-h-0 lg:w-[380px] lg:max-w-[40%]">
             <JobDetailPanel
               job={selectedJob}
               experiences={experiences}
@@ -194,8 +194,8 @@ export function JobsPage() {
             />
           </div>
         ) : (
-          <div className="hidden rounded-2xl border border-dashed border-slate-200/80 bg-white/70 px-7 py-14 text-center lg:flex lg:w-[260px] lg:shrink-0 lg:items-center lg:justify-center">
-            <p className="text-sm leading-relaxed text-slate-500">点击看板卡片查看详情与素材推荐</p>
+          <div className="hidden border border-dashed border-zinc-200/80 bg-white/80 px-7 py-14 text-center lg:flex lg:w-[260px] lg:shrink-0 lg:items-center lg:justify-center">
+            <p className="text-sm leading-relaxed text-zinc-500">点击看板卡片查看详情与素材推荐</p>
           </div>
         )}
       </div>

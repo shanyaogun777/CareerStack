@@ -32,14 +32,14 @@ export function InterviewHubPage() {
     <div className="mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col px-4 md:px-8">
       <header className="mb-6">
         <div className="flex items-start gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100/90 text-indigo-400/80">
+          <div className="flex size-10 shrink-0 items-center justify-center border border-zinc-200/80 bg-zinc-100/90 text-[var(--color-accent)]/80">
             <ClipboardList className="size-5" strokeWidth={1.5} aria-hidden />
           </div>
           <div>
-            <h1 className="text-lg font-semibold tracking-tight text-slate-800">
+            <h1 className="font-editorial text-2xl font-medium tracking-tight text-zinc-900">
               专项面试工作台
             </h1>
-            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600">
               选择目标岗位进入备战空间：管理 AI 模拟题、面经提取与手写记录，集中撰写 Markdown
               答题草稿。
             </p>
@@ -54,10 +54,10 @@ export function InterviewHubPage() {
       ) : null}
 
       {jobs.length === 0 && !error ? (
-        <div className="rounded-2xl border border-dashed border-slate-200/90 bg-white px-8 py-16 text-center">
-          <Building2 className="mx-auto size-10 text-slate-300" strokeWidth={1.5} aria-hidden />
-          <p className="mt-3 text-sm leading-relaxed text-slate-600">暂无岗位</p>
-          <p className="mt-1 text-xs leading-relaxed text-slate-500">
+        <div className="border border-dashed border-zinc-200/90 bg-white px-8 py-16 text-center">
+          <Building2 className="mx-auto size-10 text-zinc-300" strokeWidth={1.5} aria-hidden />
+          <p className="mt-3 text-sm leading-relaxed text-zinc-600">暂无岗位</p>
+          <p className="mt-1 text-xs leading-relaxed text-zinc-500">
             请先在「岗位库」添加岗位并解析 JD，再回到此处备战面试。
           </p>
         </div>
@@ -69,12 +69,12 @@ export function InterviewHubPage() {
               <li key={j.id}>
                 <Link
                   to={appInterviewJob(j.id)}
-                  className="group flex min-h-[88px] items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white px-5 py-3.5 shadow-sm transition-all duration-200 hover:border-slate-200 hover:bg-slate-50/60"
+                  className="group flex min-h-[88px] items-center justify-between gap-3 border border-zinc-200/90 bg-white/95 px-5 py-3.5 shadow-[0_10px_24px_rgba(18,18,18,0.04)] transition-all duration-200 hover:border-zinc-300/80 hover:bg-zinc-50/70"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <Building2
-                        className="size-[18px] shrink-0 text-slate-400 transition-colors duration-200 group-hover:text-indigo-400/80"
+                        className="size-[18px] shrink-0 text-zinc-400 transition-colors duration-200 group-hover:text-[var(--color-accent)]"
                         strokeWidth={1.5}
                         aria-hidden
                       />
@@ -88,7 +88,7 @@ export function InterviewHubPage() {
                     </p>
                   </div>
                   <ChevronRight
-                    className="size-5 shrink-0 text-slate-300 transition-colors duration-200 group-hover:text-indigo-400/75"
+                    className="size-5 shrink-0 text-zinc-300 transition-colors duration-200 group-hover:text-[var(--color-accent)]/85"
                     strokeWidth={1.5}
                     aria-hidden
                   />

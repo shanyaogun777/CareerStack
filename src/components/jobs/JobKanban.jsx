@@ -10,10 +10,10 @@ function JobCard({ job, selected, onClick }) {
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full rounded-xl border bg-white p-4 text-left shadow-sm transition-all duration-200',
+        'w-full border bg-white/95 p-4 text-left shadow-[0_8px_18px_rgba(18,18,18,0.04)] transition-all duration-200',
         selected
-          ? 'border-indigo-200/80 ring-1 ring-indigo-300/50 shadow-sm'
-          : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/70',
+          ? 'border-[var(--color-accent)]/35 ring-1 ring-[var(--color-accent)]/25'
+          : 'border-zinc-200/90 hover:border-zinc-300/85 hover:bg-zinc-50/70',
       )}
     >
       <div className="text-[13px] font-semibold tracking-tight text-slate-800 line-clamp-2">
@@ -49,13 +49,13 @@ export function JobKanban({ jobs, selectedId, onSelect }) {
       {JOB_STATUSES.map((status) => (
         <section
           key={status}
-          className="flex w-[228px] shrink-0 flex-col rounded-2xl border border-slate-100 bg-slate-50/50"
+          className="flex w-[228px] shrink-0 flex-col border border-zinc-200/90 bg-zinc-50/55"
           aria-label={status}
         >
-          <header className="border-b border-slate-100 px-3 py-2.5">
-            <h3 className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+          <header className="border-b border-zinc-200/90 px-3 py-2.5">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
               {status}
-              <span className="ml-1.5 font-normal text-slate-400">({byStatus[status].length})</span>
+              <span className="ml-1.5 font-normal text-zinc-400">({byStatus[status].length})</span>
             </h3>
           </header>
           <ul className="flex min-h-[120px] flex-col gap-2.5 overflow-y-auto p-3">
